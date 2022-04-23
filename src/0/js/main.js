@@ -1,26 +1,66 @@
 window.addEventListener('DOMContentLoaded', () => {
     setDefaultByOs();
     setCaret();
+    // ボタン
     document.getElementById('help').addEventListener('click', (e)=>{
         document.getElementById('help-dialog').showModal();
+    });
+    document.getElementById('download').addEventListener('click', (e)=>{ download(); });
+    document.getElementById('copy').addEventListener('click', (e)=>{ copy(); });
+    for (const ui of document.querySelectorAll('input, textarea, select')) {
+        // 入力
+        ui.addEventListener('input', (e)=>{
+            document.getElementById('content').value = generate();
+        });
+        // ショートカットキー
+        ui.addEventListener('keydown', (e)=>{
+             if (e.code == 'Enter' && e.ctrlKey) { download(); }
+        else if (e.code == 'Enter' && e.shiftKey) { copy(); }
+    });
+
+    }
+    // フォーカス制御
+    document.getElementById('help').addEventListener('keydown', (e)=>{
+        if (e.code == 'Tab' && e.shiftKey) {document.getElementById('author').focus(); e.preventDefault();}
+    });
+    document.getElementById('author').addEventListener('keydown', (e)=>{
+        if (e.code == 'Tab') {
+            if (e.shiftKey) {document.getElementById('description').focus();}
+            else            {document.getElementById('help').focus();}
+            e.preventDefault();
+        }
+    });
+    document.getElementById('close-help-dialog').addEventListener('keydown', (e)=>{
+        if (e.code == 'Tab') { e.preventDefault(); }
     });
     document.getElementById('help-dialog').addEventListener('open', (e)=>{
         document.getElementById('close-help-dialog').focus();
     });
     document.getElementById('help-dialog').addEventListener('close', (e)=>{
-        document.getElementById('content').focus();
+        document.getElementById('catch-copy').focus();
     });
-    document.getElementById('download').addEventListener('click', (e)=>{ download(); });
-    document.getElementById('copy').addEventListener('click', (e)=>{ copy(); });
-    document.getElementById('content').addEventListener('keydown', (e)=>{
-             if (e.code == 'Enter' && e.ctrlKey) { download(); }
-        else if (e.code == 'Enter' && e.shiftKey) { copy(); }
-        else if (e.code == 'Tab') { document.getElementById('help').focus(); e.preventDefault(); }
-    });
-    document.getElementById('close-help-dialog').addEventListener('keydown', (e)=>{
-        if (e.code == 'Tab') { e.preventDefault(); }
-    });
+    document.getElementById('catch-copy').dispatchEvent(new Event('input'));
 });
+function generate() {
+    function meta(name, content) { return `<meta name="${name}" content="${content}">`; }
+    const catchCopy = document.getElementById('catch-copy').value;
+    const siteName = document.getElementById('site-name').value;
+    const description = document.getElementById('description').value;
+    const author = document.getElementById('author').value;
+    html = []
+    html.push('<!DOCTYPE html>')
+    html.push('<html>')
+    html.push('<head>')
+    html.push('<meta charset="UTF-8">')
+    html.push(`<title>${catchCopy} - ${siteName}</title>`)
+    html.push(meta('description', description))
+    html.push(meta('author', author))
+    html.push('</head>')
+    html.push('<body>')
+    html.push('</body>')
+    html.push('</html>')
+    return html.join('');
+}
 function download() {
     HtmlFile.download(
         TextFile.createUtf8Blob(
