@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <title>HTMLテンプレート生成</title>
+    <script src="js/main.js"></script>
+    <script src="js/clipboard.js"></script>
+    <script src="js/file.js"></script>
+    <script src="js/text-file.js"></script>
+    <script src="js/html-file.js"></script>
+    <link href="css/style.css" rel="stylesheet"></script>
+</head>
+<body>
+    <dialog id="help-dialog">
+        <form method="dialog">
+        <div style="display:flex; justify-content:flex-end;">
+            <button id="close-help-dialog" type="submit" style="text-align: right;">❌</button>
+        </div>
+        <section>
+            <h1>これは何？</h1>
+            <p>　このアプリはHTMLの雛形を生成する。ファイルをダウンロードしたり、クリップボードにコピーできる。<button type="button">⬇</button><button type="button">📋</button></p><br>
+        </section>
+        <section>
+            <h1>ショートカットキー</h1>
+            <p>　テキストエリアにフォーカスがあるとき、次のキーが使用できます。</p><br>
+            <table>
+            <tr><td><kbd>Ctrl</kbd>+<kbd>Enter</kbd></td><td>ファイルをダウンロードする。</td><td><button type="button">⬇</button></td></tr>
+            <tr><td><kbd>Shift</kbd>+<kbd>Enter</kbd></td><td>クリップボードにコピーする。</td><td><button type="button">📋</button></td></tr>
+            </table>
+        </section>
+        </form>
+    </dialog>
+    <form id="main-form" method="post">
+        <div class="center">
+            <button id="help" title="これは何？" type="button" >❓</button>
+            <button id="copy" title="クリップボードにコピーする" type="button">📋</button>
+            <button id="download" title="ダウンロードする" type="button">⬇</button>
+            <details class="inline">
+                <summary title="ファイル">📄</summary>
+                <input type="text" id="name" name="name" value="index.html" title="ファイル名" placeholder="ファイル名" size="8">
+                <!-- 縦の中央寄せ＋ハイライトができる -->
+                <div class="checkbox-center">
+                    <input type="checkbox" id="bom" name="bom" checked>
+                    <label for="bom">BOM</label>
+                </div>
+                <select id="newline" name="newline" title="改行コード">
+                    <option value="LF">LF</option><!-- value属性値を"\n","\r","\r\n"にしても正常に取得できなかった -->
+                    <option value="CR">CR</option>
+                    <option value="CR-LF">CR-LF</option>
+                </select>
+            </details>
+        </div>
+        <div style="text-align:left;">
+            <input type="text" id="catch-copy" name="catchCopy" placeholder="キャッチコピー" title="キャッチコピー" value="キャッチコピー" size="40" autofocus>
+            <input type="text" id="site-name" name="siteName" placeholder="サイト名" title="サイト名" value="サイト名" size="10">
+            <br>
+            <!--<input type="text" id="description" name="description" placeholder="サイト説明" title="サイト説明" value="サイト説明" size="60">-->
+            <!--<input type="text" id="description" name="description" placeholder="サイト説明" title="サイト説明" value="サイト説明" size="60" style="width:100%;">-->
+            <textarea id="description" name="description" placeholder="サイト説明" title="サイト説明" rows="1" cols="40" style="width:100%; line-height:1.5em; height:calc(1.5em * 2);">サイト説明</textarea>
+            <!--<textarea id="description" name="description" placeholder="サイト説明" title="サイト説明" rows="1" cols="40" style="width:100%; padding:0; margin:0;">サイト説明</textarea>-->
+            <input type="text" id="author" name="author" placeholder="著者名" title="著者名" value="著者名" size="10">
+        </div>
+        <!--
+        <div>
+        <div class="left">
+            <input type="text" id="catch-copy" name="catchCopy" placeholder="キャッチコピー" title="キャッチコピー" value="キャッチコピー" size="40">
+            <input type="text" id="site-name" name="siteName" placeholder="サイト名" title="サイト名" value="サイト名" size="10">
+            <br>
+            <input type="text" id="description" name="description" placeholder="サイト説明" title="サイト説明" value="サイト説明" size="60">
+            <br>
+            <input type="text" id="author" name="author" placeholder="著者名" title="著者名" value="著者名" size="10">
+        </div>
+        </div>
+        -->
+            <!--
+        <div>
+        </div>
+            -->
+            <!--
+            -->
+            <!--
+            <input type="text" id="" name="" placeholder="" title="" value="">
+            -->
+        <div>
+            <output>
+            <textarea id="content" name="content" rows="10" cols="80" placeholder="テキストファイル内容" disabled>やあ！
+JSで作成したファイルだよ。</textarea>
+            </output>
+        </div>
+    </form>
+</body>
+</html>
