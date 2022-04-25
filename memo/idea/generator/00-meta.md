@@ -159,3 +159,16 @@ Open Graph|`<meta itemprop="" content="">`
 <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
 ```
 
+### Open Graph
+
+* https://ogp.me/
+
+```html
+<head prefix="og: https://ogp.me/ns#">
+    <meta property="og:title" content="タイトル" />
+    <meta property="og:type" content="video.movie" />
+    <meta property="og:url" content="URL" />
+    <meta property="og:image" content="画像URL" />
+</head>
+```
+

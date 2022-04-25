@@ -42,15 +42,26 @@ window.addEventListener('DOMContentLoaded', () => {
     document.getElementById('catch-copy').dispatchEvent(new Event('input'));
 });
 function generate() {
+    // meta
     //function meta(name, content) { return `<meta name="${name}" content="${content}">`; }
     const catchCopy = document.getElementById('catch-copy').value;
     const siteName = document.getElementById('site-name').value;
     const description = document.getElementById('description').value;
     const author = document.getElementById('author').value;
+    // Open Graph
+    const og = new OpenGraph('article');
+    const options = og.Options['og']
+    options['siteName'] = siteName
+    options['title'] = `${catchCopy} - ${siteName}`
+    options['description'] = description
+    const article = og.Options['article']
+    article.author = author
+    // Generate
     html = []
     html.push('<!DOCTYPE html>')
     html.push('<html>')
-    html.push('<head>')
+    //html.push('<head>')
+    html.push(`<head prefix="${og.makePrefix()}">`)
     html.push('<meta charset="UTF-8">')
     html.push(`<title>${catchCopy} - ${siteName}</title>`)
     //html.push(meta('description', description))
@@ -59,6 +70,7 @@ function generate() {
         description: description,
         author: author,
     }))
+    html.push(og.generate(options, article))
     html.push('</head>')
     html.push('<body>')
     html.push('</body>')
