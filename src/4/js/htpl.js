@@ -140,7 +140,7 @@ class OpenGraphGenerator {
         for (const prefix of Object.keys(this.Options)) { html.push(this.#makePrefixValue(prefix)); }
         return html.join(' ')
     }
-    #makePrefixValue(prefix='og') { return `${prefix}: https://ogp.me/ns/${('og' === prefix) ? '' : prefix}#`; }
+    #makePrefixValue(prefix='og') { return `${prefix}: https://ogp.me/ns${('og' === prefix) ? '' : '/' + prefix}#`; }
     generate() {
         let html = []
         for (const prefix of Object.keys(this.Options)) {
