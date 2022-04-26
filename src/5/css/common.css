@@ -1,0 +1,115 @@
+@charset "utf-8";
+* {
+    padding: 0;
+    margin: 0;
+}
+body, dialog, button, input, select, textarea, label, legend, optgroup, option, output, datalist {
+    background-color: var(--background-color);
+    color: var(--color);
+    caret-color: var(--color);
+    border-color: var(--color);
+    font-size: calc(100vw / var(--line-of-chars)); /* writing-mode: vertical-rl;のときはvhにせねばならない。 */
+}
+body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    vertical-align: middle;
+}
+#main-form {
+    width: 98vw;
+    height: 98vh;
+    display: grid;
+    grid-template-rows: auto auto 1fr;
+}
+form > div.center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+form > div.left {
+    display: flex;
+}
+textarea {
+    width: 100%;
+    height: 100%;
+    resize: none;
+}
+#description {
+    width: 100%;
+    line-height: 1.5em;
+    height: calc(1.5em * 2);
+}
+label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+input[type=checkbox] {
+    width: 1em;
+    height: 1em;
+}
+dialog {
+    width: 100%;
+    height: 100%;
+    text-align: left;
+}
+h1,h2,h3,h4,h5,h6 {
+    border-bottom: 1px var(--color) solid;
+    padding-bottom: 0.25em;
+    margin-bottom: 0.25em;
+}
+table {
+    margin: auto;
+}
+table, th, td {
+    border-collapse: collapse;
+    border: 1px var(--color) solid;
+}
+th, td {
+    padding: 0.25em;
+}
+kbd {
+    font-family: Consolas, "Lucida Console", monospace;
+    display: inline-block;
+    background: #eee;
+    color: #000000;
+    border-radius: 0.25em;
+    padding: 0.1em;
+    border: 1px var(--color) solid;
+}
+button:focus, select:focus {
+    background-color: #FFFF00;
+    color: #000000;
+}
+input[type=checkbox]:focus-visible + label {
+    background-color: #FFFF00;
+    color: #000000;
+}
+textarea::selection, input[type=text]::selection {
+    background-color: var(--color);
+    color: var(--background-color);
+}
+details.inline {
+    display: inline-block;
+}
+label.checkbox-center > * { float:left; }
+/*details.inline > * { float:left; }*/
+details.inline > * { block:inline-block; }
+details.inline > div.checkbox-center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+summary {
+    list-style: none;
+    cursor: pointer;
+}
+summary:focus, summary:hover {
+    background-color: #FFFF00;
+    color: #000000;
+}
+textarea, input[type=text] {
+    padding: 0.2em;
+}
