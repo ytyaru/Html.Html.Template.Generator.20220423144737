@@ -132,6 +132,7 @@ class OpenGraphVideoNamespace extends OpenGraphOption {
 }
 class OpenGraphGenerator {
     constructor(options) {
+        options['@context'] = "https://schema.org/"
         this.options = options
     }
     get Options() { return this.options; }
@@ -174,37 +175,136 @@ class SchemaOrg {
         gender: '',
         description: '',
     }); }
+    static get Article() { return new JsonLdGenerator({
+        '@type': '',
+    }); }
+    static get NewsArticle() { return new JsonLdGenerator({
+        '@type': '',
+    }); }
+    static get Blog() { return new JsonLdGenerator({
+        '@type': '',
+    }); }
+    static get Book() { return new JsonLdGenerator({
+        '@type': '',
+    }); }
+    static get Chapter() { return new JsonLdGenerator({
+        '@type': '',
+    }); }
+    static get HowTo() { return new JsonLdGenerator({
+        '@type': 'HowTo',
+        name: '',
+        image: {},
+        estimatedCost: {},
+        supply: [],
+
+    }); }
+    static get HowToDirection() { return new JsonLdGenerator({
+        '@type': '',
+    }); }
+    static get HowToSection() { return new JsonLdGenerator({
+        '@type': '',
+    }); }
+    static get HowToStep() { return new JsonLdGenerator({
+        '@type': '',
+    }); }
+    static get HowToTip() { return new JsonLdGenerator({
+        '@type': '',
+    }); }
+    static get HowToSupply() { return new JsonLdGenerator({
+        '@type': 'HowToSupply',
+        name: '',
+        estimatedCost: {},
+        requiredQuantity: {},
+    }); }
+    static get HowToTool() { return new JsonLdGenerator({
+        '@type': 'HowToTool',
+        name: '',
+        requiredQuantity: 1,
+    }); }
+
+    static get ShortStory() { return new JsonLdGenerator({
+        '@type': '',
+    }); }
+
+    // 画像（Illust, PixelArt, がない。おそらくPaintingに該当するのだろう）
+    static get Drawing() { return new JsonLdGenerator({
+        '@type': '',
+    }); }
+    static get Painting() { return new JsonLdGenerator({
+        '@type': '',
+    }); }
+    static get Photograph() { return new JsonLdGenerator({
+        '@type': '',
+    }); }
+    static get Poster() { return new JsonLdGenerator({
+        '@type': '',
+    }); }
+    static get VisualArtwork() { return new JsonLdGenerator({
+        '@type': '',
+    }); }
+
+    // データセット（CSV,XMLなど）https://developers.google.com/search/docs/advanced/structured-data/dataset?hl=ja
+    static get Dataset() { return new JsonLdGenerator({
+        '@type': 'Dataset',
+        name: '',
+        description: '',
+        creator: [''],
+        citation: 'URL',
+        keywords: ['']
+        isAccessibleForFree: true,
+        license: 'https://creativecommons.org/publicdomain/zero/1.0/',
+        distribution: [{
+            '@type': 'DataDownload',
+            encodingFormat: 'CSV',
+            contentUrl: 'http://www.ncdc.noaa.gov/stormevents/ftp.jsp'
+            },{
+            '@type': 'DataDownload',
+            encodingFormat: 'XML',
+            contentUrl: 'http://gis.ncdc.noaa.gov/all-records/catalog/search/resource/details.page?id=gov.noaa.ncdc:C00510'
+        }],
+        image: '',
+        sameAs: [''],
+        gender: '',
+    }); }
+
+    // メディア
+    static get MediaObject() { return new JsonLdGenerator({
+    }); }
+
+    static get SoftwareApplication() { return new JsonLdGenerator({
+    }); }
+    static get SoftwareSourceCode() { return new JsonLdGenerator({
+    }); }
+    static get Thesis() { return new JsonLdGenerator({ // 論文
+    }); }
+    static get () { return new JsonLdGenerator({
+    }); }
+    static get () { return new JsonLdGenerator({
+    }); }
+    static get () { return new JsonLdGenerator({
+    }); }
+    static get () { return new JsonLdGenerator({
+    }); }
+    static get () { return new JsonLdGenerator({
+    }); }
+    static get () { return new JsonLdGenerator({
+    }); }
+    static get () { return new JsonLdGenerator({
+    }); }
+    static get () { return new JsonLdGenerator({
+    }); }
+    static get () { return new JsonLdGenerator({
+    }); }
+    static get () { return new JsonLdGenerator({
+    }); }
+    static get () { return new JsonLdGenerator({
+    }); }
+    static get () { return new JsonLdGenerator({
+    }); }
 }
 class JsonLdGenerator { // <script type="application/ld+json">
     constructor(options) { this.options = options; }
-    get Options() { return this.Options; }
+    get Options() { return this.options; }
     get Mime() { return 'application/ld+json'; }
-    generate() {
-        return `{
-    "@context": "https://schema.org/",
-    "@type": "Person",
-    "name": "",
-    "url": "",
-    "image": "",
-    "sameAs": ["URL", "URL"],
-    "gender": "",
-    "description": "",
-}`
-    }
-    static #generateJsonLd() {
-        for (const key of Object.keys(this.Options)) {
-        }
-        const html = []
-        for (const key of Object.keys(this.Options)) {
-                 if (!options[key]) { continue; }   // 値がない
-            else if (Array.isArray(options[key])) { // 配列である
-                const values = []
-                for (const value of options[key]) { values.push(`"${value}"`); }
-                html.push(`"${key}": [${values.join(', ')}]`);
-            }
-            else { html.push(this.makeHtml(`"${key}": "${options[key]}"`)); }
-        }
-        return html
-
-    }
+    generate() { return JSON.stringify(this.Options); }
 }
