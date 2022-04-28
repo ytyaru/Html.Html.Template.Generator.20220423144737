@@ -190,7 +190,7 @@ class SchemaOrg { // Googleが対応しているものだけ
         image: [''], // アス比（1x1,4x3,16x9）各種用意する。幅696px以上。面積30万px以上。
     }); }
     // パンくずリスト
-    static #makeBreadcrumbListItemListElement(data) { // positionプロパティを自動生成する
+    static #makeBreadcrumbList(data) { // positionプロパティを自動生成する
         const items = []
         let count = 1;
         for (const [name, url] of data.entries()) {
@@ -203,7 +203,7 @@ class SchemaOrg { // Googleが対応しているものだけ
         }
         return items;
     }
-    static get BreadcrumbList(data) { // data: new Map(); map[name] = URL;
+    static BreadcrumbList(data) { // data: new Map(); map[name] = URL;
         if (!data || !(data instanceof Map)) {
             data = new Map()
             data['Home'] = 'https://domain.com/'
@@ -212,7 +212,7 @@ class SchemaOrg { // Googleが対応しているものだけ
         }
         return new JsonLdGenerator({
             '@type': 'BreadcrumbList',
-            itemListElement: this.#makeBreadcrumbListItemListElement(data),
+            itemListElement: this.#makeBreadcrumbList(data),
         /*
         return new JsonLdGenerator({
         '@type': 'BreadcrumbList',
@@ -248,7 +248,7 @@ class SchemaOrg { // Googleが対応しているものだけ
         }
         return items;
     }
-    static get FAQPage(data) {
+    static FAQPage(data) {
         if (!data || !(data instanceof Map)) {
             data = new Map()
             data['質問1'] = '回答1'
@@ -259,8 +259,106 @@ class SchemaOrg { // Googleが対応しているものだけ
             '@type': 'FAQPage',
             mainEntity: this.#makeFaqList(data),
     }); }
+    static #makeAnswer(answer, isMarkdown=false) { // answer = '回答' or ['回答', '理由']
+        const obj = { '@type': 'Answer' }
+        if (isMarkdown) { obj.encodingFormat = 'text/markdown'; }
+        if ('string' === typeof(answer)) { obj.text = answer; }
+        else if (Array.isArray(answer)) { obj.text = answer[0]; obj.comment = this.#makeComment(answer[1]); }
+        else { throw "引数answerは文字列か配列であるべきです。'回答'または['回答', '理由']。"; }
+        return obj;
+    }
+    static #makeComment(text) { return {
+        '@type': 'Comment',
+        text: '理由',
+    }}
+    static #makeQuestion(question, answerObj, suggestsObjs, isCheckbox=false) { 
+        const type = (isCheckbox) ? 'Checkbox' : 'Multiple choice'
+        return {
+            '@type': 'Question',
+            eduQuestionType: type,  // Multiple choice（正解はひとつのみ）, Checkbox（正解が複数ある）
+            learningResourceType: 'Practice problem', // 練習問題（固定値）
+            text: question,                // 問題
+            acceptedAnswer: answerObj,     // 回答（正解）
+            suggestedAnswer: suggestsObjs, // 回答（不正解）
+        }
+    }
+    // クイズ https://developers.google.com/search/docs/advanced/structured-data/practice-problems?hl=ja
+// ひとつの問題に対して正解がひとつ。不正解が複数。ラジオボタン選択式。answer, suggestsはテキストまはたオブジェクトが入る。オブジェクトはテキストが二つ入る。すなわち表示テキストと、それが正解／不正解である理由。
+    static SimpleQuiz(title, question, answer, suggests) {
+        const answerObj = this.#makeAnswer(answer);
+        const suggestObjs = []
+        for (const s of suggests) { suggestObjs.push(this.#makeAnswer(s)); }
+        return new JsonLdGenerator({
+            '@type': 'Quiz',
+            "about": {
+                "@type": "Thing",
+                "name": title,
+            },
+            hasPart: this.#makeQuestion(question, answerObj, suggestObjs),
+    }); }
+    static SimpleQuizes(title, questions) { // SimpleQuizが複数ある。questions = [{question, answer, suggests}]
+        const questionObjs = []
+        for (const question of questions) {
+            const answerObj = this.#makeAnswer(question.answer);
+            const suggestObjs = []
+            for (const s of question.suggests) { suggestObjs.push(this.#makeAnswer(s)); }
+            questionObjs.push(this.#makeQuestion(question, answerObj, suggestObjs))
+        }
+        return new JsonLdGenerator({
+            '@type': 'Quiz',
+            "about": {
+                "@type": "Thing",
+                "name": title,
+            },
+            hasPart: questionObjs,
+    }); }
 
+    static get Quiz() { return new JsonLdGenerator({ // ニュース
+        '@type': 'Quiz',
+        "about": {
+            "@type": "Thing",
+            "name": "クイズのコンセプト"
+        },
+        hasPart: {
+            '@type': 'Question',
+            eduQuestionType: 'Multiple choice',  // Multiple choice（正解はひとつのみ）, Checkbox（正解が複数ある）
+            learningResourceType: 'Practice problem', // 練習問題（固定値）
+            name: 'クイズのタイトル',
+            text: 'クイズの本文。問題文。',
+            acceptedAnswer: { // 正解
+                '@type': 'Answer',
+                encodingFormat: 'text/html', // h1〜h6,br,ol,ul,li,p,b,i,img,LaTex。（text/html, text/markdown）
+                text: '正解',
+                /*
+                comment: { // なぜ正解なのか。
+                    '@type': 'Comment',
+                    text: '理由',
+                },
+                */
+            },
+            suggestedAnswer: [{ // 不正解
+                '@type': 'Answer',
+                encodingFormat: 'text/html',
+                text: '不正解1',
+                /*
+                comment: { // なぜ不正解なのか。
+                    '@type': 'Comment',
+                    text: '理由',
+                },
+                */
+            },{
+                '@type': 'Answer',
+                encodingFormat: 'text/html',
+                text: '不正解2',
+            }],
+        },
+    }); }
 
+    // ポッドキャスト RSS https://support.google.com/podcast-publishers/answer/9889544#enclosure
+    /*
+    static get  Podcast() {
+    }); }
+    */
 
     /*
     static get NewsArticle() { return new JsonLdGenerator({ // ニュース
@@ -498,7 +596,7 @@ class SchemaOrg { // Googleが対応しているものだけ
         description: '',
         creator: [''],
         citation: 'URL',
-        keywords: ['']
+        keywords: [''],
         isAccessibleForFree: true,
         license: 'https://creativecommons.org/publicdomain/zero/1.0/',
         distribution: [{
@@ -684,7 +782,7 @@ class SchemaOrg { // Googleが対応しているものだけ
     // 本
     static get Book() { return new JsonLdGenerator({
         '@type': 'DataFeed',
-        dataFeedElement: [
+        dataFeedElement: [{
             "@context": "https://schema.org",
             "@type": "Book",
             "@id": "http://example.com/work/the_catcher_in_the_rye",
@@ -735,7 +833,7 @@ class SchemaOrg { // Googleが対応しているものだけ
                 "bookFormat": "https://schema.org/Paperback",
                 "inLanguage": "en",
             }]
-        ],
+        }],
     }); }
     /*
     static get Chapter() { return new JsonLdGenerator({
