@@ -589,28 +589,47 @@ class SchemaOrg { // Googleが対応しているものだけ
     }); }
     */
 
+    static DataDownload(format, url) { return { // format = 'CSV','XML',  url = 'https://...some.csv'
+        '@type': 'DataDownload',
+        encodingFormat: format,
+        contentUrl: url
+    }}
     // データセット（CSV,XMLなど）https://developers.google.com/search/docs/advanced/structured-data/dataset?hl=ja
-    static get Dataset() { return new JsonLdGenerator({
-        '@type': 'Dataset',
-        name: '',
-        description: '',
-        creator: [''],
-        citation: 'URL',
-        keywords: [''],
-        isAccessibleForFree: true,
-        license: 'https://creativecommons.org/publicdomain/zero/1.0/',
-        distribution: [{
-            '@type': 'DataDownload',
-            encodingFormat: 'CSV',
-            contentUrl: 'http://www.ncdc.noaa.gov/stormevents/ftp.jsp'
-            },{
-            '@type': 'DataDownload',
-            encodingFormat: 'XML',
-            contentUrl: 'http://gis.ncdc.noaa.gov/all-records/catalog/search/resource/details.page?id=gov.noaa.ncdc:C00510'
-        }],
-        image: '',
-        sameAs: [''],
-        gender: '',
+    static Dataset(name, description, downloads, options={}) { // downloads = new Map() ['format'] = 'url'
+        if (!(downloads instanceof Map)) { throw "引数downloadsはMap型であるべきです。map['format'] = 'url'"; }
+        const distribution = []
+        for (const [format, url] of downloads.entries()) { distribution.push(this.DataDownload(format, url)); }
+        return new JsonLdGenerator({
+            '@type': 'Dataset',
+            name: name,
+            description: description,
+            distribution: distribution,
+            ...options
+        /*
+        const obj = { 
+            '@type': 'Dataset',
+            name: name,
+            description: description,
+            distribution: distribution,
+            creator: creator,
+            citation: 'URL',
+            keywords: [''],
+            isAccessibleForFree: true,
+            license: 'https://creativecommons.org/publicdomain/zero/1.0/',
+        }
+        */
+        /*
+        return new JsonLdGenerator({ 
+            '@type': 'Dataset',
+            name: name,
+            description: description,
+            distribution: distribution,
+            creator: creator,
+            citation: 'URL',
+            keywords: [''],
+            isAccessibleForFree: true,
+            license: 'https://creativecommons.org/publicdomain/zero/1.0/',
+        */
     }); }
 
     /*
@@ -857,7 +876,7 @@ class SchemaOrg { // Googleが対応しているものだけ
     */
 }
 class JsonLdGenerator { // <script type="application/ld+json">
-    constructor(options) { this.options = options; }
+    constructor(options) { this.options = options; this.options['@context'] = 'https://schema.org/'; }
     get Options() { return this.options; }
     get Mime() { return 'application/ld+json'; }
     generate() { return JSON.stringify(this.Options); }
