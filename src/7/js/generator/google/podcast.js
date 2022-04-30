@@ -24,15 +24,6 @@ class Podcast { // https://support.google.com/podcast-publishers/answer/9476656?
             length: '', // データサイズ（バイト）
         },
         duration: '', // 再生時間(hh:mm:ss, mm:ss, ssssss)
-エピソードの再生時間。次のいずれかの形式で指定します。
-
-時:分:秒
-例: <itunes:duration>1:10:00</itunes:duration>
-分:秒
-例: <itunes:duration>10:00</itunes:duration>
-total_seconds
-例: <itunes:duration>1800</itunes:duration>
-最初の 2 つの形式の時、分、秒の値はそれぞれ 2 桁以内で指定してください。
     }}
     #generateItem(options) { // https://support.google.com/podcast-publishers/answer/9889544
         const rss = []
