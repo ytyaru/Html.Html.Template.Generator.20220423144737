@@ -492,7 +492,7 @@ class SchemaOrg { // Googleが対応しているものだけ
         description: '',
         thumbnailUrl: [''],
         uploadDate: '',
-        duration: '',
+        duration: '', // PT1H2M3 (ISO8601形式。1時間2分3秒間)
         contentUrl: '',
         embedUrl: '',
         interactionStatistic: {
