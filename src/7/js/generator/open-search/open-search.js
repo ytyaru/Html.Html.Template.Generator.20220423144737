@@ -11,7 +11,7 @@ class OpenSearch { // https://developer.mozilla.org/ja/docs/Web/OpenSearch
             case 'png': return 'image/png'
             case 'jpg':
             case 'jpeg': return 'image/png'
-            default throw 'URLの拡張子はico,png,jpg,jpegのいずれかであるべきです。';
+            default: throw 'URLの拡張子はico,png,jpg,jpegのいずれかであるべきです。';
         }
     }
     generate() { // shortName:16字以内、description:1024字以内
