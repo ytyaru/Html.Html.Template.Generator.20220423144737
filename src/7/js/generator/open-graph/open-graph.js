@@ -43,6 +43,8 @@ class OpenGraphNamespace extends OpenGraphOption {
     }});}
     static get Music() { return OpenGraphMusicNamespace; }
     static get Video() { return OpenGraphVideoNamespace; }
+    static get Twitter() { return OpenGraphTwitter; }
+    static get Facebook() { return OpenGraphFacebook; }
 }
 class OpenGraphMusicNamespace extends OpenGraphOption {
     static get Song() { return new OpenGraphGenerator({...this.OPTIONS, 
