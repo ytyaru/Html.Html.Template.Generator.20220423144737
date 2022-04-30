@@ -72,3 +72,13 @@
     * xml
 * pwa
     * manifest.json
+
+## 語彙を自作する
+
+* XML Schema
+* LOD
+* JSON Schema
+
+　とりあえず一番カンタンそうなのはJSON Schema。
+
+
