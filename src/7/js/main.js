@@ -5,7 +5,7 @@ window.addEventListener('DOMContentLoaded', () => {
     document.getElementById('help').addEventListener('click', (e)=>{
         document.getElementById('help-dialog').showModal();
     });
-    document.getElementById('download').addEventListener('click', (e)=>{ download(); });
+    document.getElementById('download').addEventListener('click', async(e)=>{ await download(); });
     document.getElementById('copy').addEventListener('click', (e)=>{ copy(); });
     for (const ui of document.querySelectorAll('input, textarea, select')) {
         // 入力
@@ -13,8 +13,8 @@ window.addEventListener('DOMContentLoaded', () => {
             document.getElementById('content').value = generate();
         });
         // ショートカットキー
-        ui.addEventListener('keydown', (e)=>{
-             if (e.code == 'Enter' && e.ctrlKey) { download(); }
+        ui.addEventListener('keydown', async(e)=>{
+             if (e.code == 'Enter' && e.ctrlKey) { await download(); }
         else if (e.code == 'Enter' && e.shiftKey) { copy(); }
     });
     document.getElementById('expand-file-details').addEventListener('change', (e)=>{
@@ -108,13 +108,47 @@ function generate() {
         endOfLine: document.getElementById('newline').value.replace('-','').toLowerCase(),
     });
 }
-function download() {
+async function download() {
+    const zip = new JSZip()
+    zip.folder('js')
+    zip.folder('css')
+    zip.folder('html')
+    zip.folder('asset')
+    zip.folder('asset/font')
+    zip.folder('asset/image')
+    zip.folder('asset/image/icon')
+    zip.folder('asset/image/pictgram')
+    zip.folder('asset/image/photo')
+    zip.folder('asset/image/illust')
+    zip.folder('asset/image/pixel-art')
+    zip.folder('asset/audio')
+    zip.folder('asset/video')
+    zip.folder('asset/3d-model')
+    zip.file('js/main.js', `window.addEventListener('DOMContentLoaded', async(e)=> {\n  console.log('Hello JS !!')\n})`)
+    zip.file('css/style.css', '@charset "utf-8";\n* {\n  padding: 0;\n  margin: 0;\n}')
+    zip.file(document.getElementById('name').value,
+            TextFile.createUtf8Blob(
+                document.getElementById('content').value, 
+                document.getElementById('newline').value,
+                document.getElementById('bom').checked))
+    zip.file('sitemap.xml', SitemapXml.generate('https://example.com/index.html'))
+
+    // https://stuk.github.io/jszip/documentation/api_jszip/generate_async.html#compression-and-compressionoptions-options
+    const blob = await zip.generateAsync({
+        type: 'blob',
+        compression: 'DEFLATE', // STORE（無圧縮（既定値））、DEFLATE（圧縮）
+        compressionOptions: { level: 9 }, // level: 1〜9
+        comment: 'WEBサイト用テンプレートファイル一式',
+    })
+    HtmlFile.download(blob, 'web.zip')
+    /*
     HtmlFile.download(
         TextFile.createUtf8Blob(
             document.getElementById('content').value, 
             document.getElementById('newline').value,
             document.getElementById('bom').checked),
         document.getElementById('name').value);
+    */
 }
 function copy() {
     Clipboard.copy(
