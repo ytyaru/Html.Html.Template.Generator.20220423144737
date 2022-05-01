@@ -68,7 +68,7 @@ class SchemaOrg { // Googleが対応しているものだけ
     }); }
     // FAQ
     static #makeFaqList(data) { // data = new Map(); map[Q] = "A";
-        if (!(data instanceof Map)) { throw "引数dataはMap型にしてください。map = new Map(); map['質問1'] = '回答1';"; }
+        if (!(data instanceof Map)) { throw new Error("引数dataはMap型にしてください。map = new Map(); map['質問1'] = '回答1';"); }
         const items = []
         for (const [question, answer] of data.entries()) {
             const item = { "@type": "Question" }
@@ -81,7 +81,7 @@ class SchemaOrg { // Googleが対応しているものだけ
         }
         return items;
     }
-    static FAQPage(data) {
+    static FaqPage(data) {
         if (!data || !(data instanceof Map)) {
             data = new Map()
             data['質問1'] = '回答1'
@@ -97,12 +97,12 @@ class SchemaOrg { // Googleが対応しているものだけ
         if (isMarkdown) { obj.encodingFormat = 'text/markdown'; }
         if ('string' === typeof(answer)) { obj.text = answer; }
         else if (Array.isArray(answer)) { obj.text = answer[0]; obj.comment = this.#makeComment(answer[1]); }
-        else { throw "引数answerは文字列か配列であるべきです。'回答'または['回答', '理由']。"; }
+        else { throw new Error("引数answerは文字列か配列であるべきです。'回答'または['回答', '理由']。"); }
         return obj;
     }
     static #makeComment(text) { return {
         '@type': 'Comment',
-        text: '理由',
+        text: text,
     }}
     static #makeQuestion(question, answerObj, suggestsObjs, isCheckbox=false) { 
         const type = (isCheckbox) ? 'Checkbox' : 'Multiple choice'
@@ -354,7 +354,7 @@ class SchemaOrg { // Googleが対応しているものだけ
         requiredQuantity: 1,
     }); }
     static get HowToSection() { return new JsonLdGenerator({ // Stepまとめ
-        '@type': '',
+        '@type': 'HowToSection',
         name: '',
         itemListElement: [{
             '@type': 'HowToStep',
@@ -429,7 +429,7 @@ class SchemaOrg { // Googleが対応しているものだけ
     }}
     // データセット（CSV,XMLなど）https://developers.google.com/search/docs/advanced/structured-data/dataset?hl=ja
     static Dataset(name, description, downloads, options={}) { // downloads = new Map() ['format'] = 'url'
-        if (!(downloads instanceof Map)) { throw "引数downloadsはMap型であるべきです。map['format'] = 'url'"; }
+        if (!(downloads instanceof Map)) { throw new Error("引数downloadsはMap型であるべきです。map['format'] = 'url'"); }
         const distribution = []
         for (const [format, url] of downloads.entries()) { distribution.push(this.DataDownload(format, url)); }
         return new JsonLdGenerator({
