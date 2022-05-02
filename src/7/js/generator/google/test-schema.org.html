@@ -4,12 +4,12 @@
 <script>
 // 出力されたJSON-LDは以下URLのリッチリザルトでバリデートする
 // https://search.google.com/test/rich-results?hl=ja
+// <script type="application/ld+json"><\/script> で囲う必要がある。
 class TestSchemaOrg { // Googleが対応しているものだけ
+    #makeTag(jsonLdStr) { return `<script type="application/ld+json">${this.#prettier(jsonLdStr)}<\/script>`; }
     #prettier(jsonLdStr) { return prettier.format(jsonLdStr, {
         parser: 'json',
         plugins: prettierPlugins,
-        //filepath: document.getElementById('name').value,
-        //endOfLine: document.getElementById('newline').value.replace('-','').toLowerCase(),
     })}
     testBreadcrumbList() {
         const data = new Map()
@@ -17,9 +17,18 @@ class TestSchemaOrg { // Googleが対応しているものだけ
         data.set('階層1', 'https://example.com/category1/index.html')
         data.set('階層2', '')
         const jsonLd = SchemaOrg.BreadcrumbList(data).generate()
-        console.log(this.#prettier(jsonLd ))
+        console.log(this.#makeTag(jsonLd))
+    }
+    testFaqPage() {
+        const data = new Map()
+        data.set('これはよくある質問ですか？', 'はい、そうです。')
+        data.set('これはどんな形式のデータで作られましたか？', 'JSON-LD形式です。schema.orgのうちGoogleの定義に従ったプロパティを使用しました。')
+        data.set('これはバリデートチェックしましたか？', 'はい。<a href="https://search.google.com/test/rich-results?hl=ja">リッチリザルト</a>で正しい書式であることを確認しました。')
+        const jsonLd = SchemaOrg.FaqPage(data).generate()
+        console.log(this.#makeTag(jsonLd))
     }
 }
 const test = new TestSchemaOrg() 
 test.testBreadcrumbList()
+test.testFaqPage()
 </script>
