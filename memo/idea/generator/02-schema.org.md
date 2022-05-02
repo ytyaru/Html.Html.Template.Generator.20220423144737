@@ -330,3 +330,120 @@ Section.name
 
 　ただし、1階層のときは使えない。これはStep.textを使うためである。
 
+#### method
+
+　インターフェイスを考える。
+
+1層
+```javascript
+const steps = ['手順1', '手順2', '手順3']
+const options = {image: '完成画像URL'}
+options.suply = [Google.SchemaOrg.HowToSupply(name, image, requiredQuantity, estimatedCost)] 
+options.tool = [Google.SchemaOrg.HowToTool(name, image, requiredQuantity)]
+Google.SchemaOrg.HowTo(name, steps, options)
+```
+
+材料＆道具
+```javascript
+Google.SchemaOrg.HowToSupply(name, image=null, requiredQuantity=1, estimatedCost=null)
+Google.SchemaOrg.HowToTool(name, image=null, requiredQuantity=1)
+
+Google.SchemaOrg.HowToSupply(option)
+Google.SchemaOrg.HowToTool(option)
+
+Google.SchemaOrg.HowToSupplies(options)
+Google.SchemaOrg.HowToTools(options)
+
+HowToSupplies(options) {
+    return [...Array(options.length).keys()].map((o)=>{Google.SchemaOrg.HowToSupply(o)});
+
+    const supplies = []
+    for (const option of options) {
+        supplies.push(Google.SchemaOrg.HowToSupply(option))
+    }
+    return supplies
+}
+```
+
+2層
+```javascript
+const steps = new Map()
+steps['手順1'] = ['手順1-1', '手順1-2', 'TIP: ヒント']
+steps['手順2'] = ['手順2-1', '手順2-2', 'TIP: ヒント']
+const options = {image: 'URL'}
+Google.SchemaOrg.HowTo(name, steps, options)
+```
+
+3層
+```javascript
+const steps = new Map()
+steps['セクション1'] = new Map()
+steps['セクション1']['手順1'] = ['手順1-1', '手順1-2', 'TIP: ヒント']
+steps['セクション1']['手順2'] = ['手順2-1', '手順2-2', 'TIP: ヒント']
+steps['セクション2'] = new Map()
+steps['セクション2']['手順1'] = ['手順1-1', '手順1-2', 'TIP: ヒント']
+steps['セクション2']['手順2'] = ['手順2-1', '手順2-2', 'TIP: ヒント']
+const options = {image: 'URL'}
+Google.SchemaOrg.HowTo(name, steps, options)
+```
+
+#### カスタム例外
+
+* https://developer.mozilla.org/ja/docs/Web/JavaScript/Reference/Global_Objects/Error
+
+　たとえばschema.orgを生成するときの引数エラーを定義する。
+
+* SchemaOrgParameterError
+
+```javascript
+class SchemaOrgParameterError extends Error {
+    constructor(message) {
+        super(message);
+        this.name = 'SchemaOrgParameterError ';
+    }
+}
+
+try {
+    throw new SchemaOrgParameterError ('エラーじゃ！');
+} catch (e) {
+    if (e instanceof SchemaOrgParameterError) {
+        console.log('自作エラーじゃ！')
+    } else {
+        console.log('その他エラー');
+    }
+}
+```
+
+　じつは環境依存である。
+
+```javascript
+class SchemaOrgParameterError extends Error {
+    constructor(message) {
+        super(message);
+        this.name = 'SchemaOrgParameterError';
+        // V8のとき必要
+        if (Error.captureStackTrace) { Error.captureStackTrace(this, this.constructor); }
+        // ES5やそれ以前のとき必要
+        Object.setPrototypeOf(this, new.target.prototype);
+    }
+}
+```
+
+　冗長すぎる。`class 名前 extends Error`と書いただけで設定してほしい。`name`部分だけは`this.constructor.name`で改善できた。これでクラス名が代入できる。これもデフォルトでやってほしかったなぁ。
+
+```javascript
+class SchemaOrgParameterError extends Error {
+    constructor(message) {
+        super(message);
+        this.name = this.constructor.name;
+        // V8のとき必要
+        if (Error.captureStackTrace) { Error.captureStackTrace(this, this.constructor); }
+        // ES5やそれ以前のとき必要
+        Object.setPrototypeOf(this, new.target.prototype);
+    }
+}
+```
+
+
+
+

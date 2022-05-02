@@ -1,0 +1,25 @@
+<script src="../../../lib/prettier/2.6.2/standalone.js"></script>
+<script src="../../../lib/prettier/2.6.2/parser-babel.js"></script>
+<script src="schema.org.js"></script>
+<script>
+// 出力されたJSON-LDは以下URLのリッチリザルトでバリデートする
+// https://search.google.com/test/rich-results?hl=ja
+class TestSchemaOrg { // Googleが対応しているものだけ
+    #prettier(jsonLdStr) { return prettier.format(jsonLdStr, {
+        parser: 'json',
+        plugins: prettierPlugins,
+        //filepath: document.getElementById('name').value,
+        //endOfLine: document.getElementById('newline').value.replace('-','').toLowerCase(),
+    })}
+    testBreadcrumbList() {
+        const data = new Map()
+        data.set('🏠', 'https://example.com/index.html')
+        data.set('階層1', 'https://example.com/category1/index.html')
+        data.set('階層2', '')
+        const jsonLd = SchemaOrg.BreadcrumbList(data).generate()
+        console.log(this.#prettier(jsonLd ))
+    }
+}
+const test = new TestSchemaOrg() 
+test.testBreadcrumbList()
+</script>

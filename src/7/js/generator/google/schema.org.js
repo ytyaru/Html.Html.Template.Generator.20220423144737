@@ -26,7 +26,7 @@ class SchemaOrg { // Googleが対応しているものだけ
     static #makeBreadcrumbList(data) { // positionプロパティを自動生成する
         const items = []
         let count = 1;
-        for (const [name, url] of data.entries()) {
+        for (const [name, url] of data) {
             const item = { "@type": "ListItem" }
             item.position = count
             item.name = name
@@ -68,7 +68,8 @@ class SchemaOrg { // Googleが対応しているものだけ
     }); }
     // FAQ
     static #makeFaqList(data) { // data = new Map(); map[Q] = "A";
-        if (!(data instanceof Map)) { throw new Error("引数dataはMap型にしてください。map = new Map(); map['質問1'] = '回答1';"); }
+        if (!(data instanceof Map)) { throw new SchemaOrgParameterError("引数dataはMap型にしてください。map = new Map(); map['質問1'] = '回答1';"); }
+        //if (!(data instanceof Map)) { throw new Error("引数dataはMap型にしてください。map = new Map(); map['質問1'] = '回答1';"); }
         const items = []
         for (const [question, answer] of data.entries()) {
             const item = { "@type": "Question" }
@@ -97,7 +98,8 @@ class SchemaOrg { // Googleが対応しているものだけ
         if (isMarkdown) { obj.encodingFormat = 'text/markdown'; }
         if ('string' === typeof(answer)) { obj.text = answer; }
         else if (Array.isArray(answer)) { obj.text = answer[0]; obj.comment = this.#makeComment(answer[1]); }
-        else { throw new Error("引数answerは文字列か配列であるべきです。'回答'または['回答', '理由']。"); }
+        else { throw new SchemaOrgParameterError("引数answerは文字列か配列であるべきです。'回答'または['回答', '理由']。"); }
+        //else { throw new Error("引数answerは文字列か配列であるべきです。'回答'または['回答', '理由']。"); }
         return obj;
     }
     static #makeComment(text) { return {
@@ -429,7 +431,8 @@ class SchemaOrg { // Googleが対応しているものだけ
     }}
     // データセット（CSV,XMLなど）https://developers.google.com/search/docs/advanced/structured-data/dataset?hl=ja
     static Dataset(name, description, downloads, options={}) { // downloads = new Map() ['format'] = 'url'
-        if (!(downloads instanceof Map)) { throw new Error("引数downloadsはMap型であるべきです。map['format'] = 'url'"); }
+        if (!(downloads instanceof Map)) { throw new SchemaOrgParameterError("引数downloadsはMap型であるべきです。map['format'] = 'url'"); }
+        //if (!(downloads instanceof Map)) { throw new Error("引数downloadsはMap型であるべきです。map['format'] = 'url'"); }
         const distribution = []
         for (const [format, url] of downloads.entries()) { distribution.push(this.DataDownload(format, url)); }
         return new JsonLdGenerator({
@@ -714,4 +717,14 @@ class JsonLdGenerator { // <script type="application/ld+json">
     get Options() { return this.options; }
     get Mime() { return 'application/ld+json'; }
     generate() { return JSON.stringify(this.Options); }
+}
+class SchemaOrgParameterError extends Error {
+    constructor(message) {
+        super(message);
+        this.name = this.constructor.name;
+        // V8のとき必要
+        if (Error.captureStackTrace) { Error.captureStackTrace(this, this.constructor); }
+        // ES5やそれ以前のとき必要
+        Object.setPrototypeOf(this, new.target.prototype);
+    }
 }
