@@ -264,7 +264,7 @@ class SchemaOrg { // Googleが対応しているものだけ
     }}
     static HowToStepText(data) {
         const step = {'@type': 'HowToStep'}
-             if (data instanceof String) { step.text = data; }
+             if ('string' === typeof data) { step.text = data; }
         else if (Array.isArray(data)) {
             for (const d of data) {
                 if (!step.hasOwnProperty('text')) { step.text = d; }
@@ -278,7 +278,7 @@ class SchemaOrg { // Googleが対応しているものだけ
             }
         }
         else if (data instanceof Object) { step = data; } // text, url, image, 
-        else { throw new SchemaOrgParameterError(`HowToStepTextの引数dataはStringかObject型であるべきです。data = '手順'; data = {text:'手順', url:'https://...', image:'https://...'};`); }
+        else { throw new SchemaOrgParameterError(`HowToStepTextの引数dataはStringかObject型であるべきです。'${typeof data}' data = '手順'; data = {text:'手順', url:'https://...', image:'https://...'};`); }
         return step
     }
     static HowToStepDirections(name, directions) {
@@ -305,12 +305,12 @@ class SchemaOrg { // Googleが対応しているものだけ
     static HowToDirection(text) { return { '@type': 'HowToDirection', text: text }; } 
     static HowToSteps(data) { // 階層1,2,3の3パターンある。2階層以上なら先頭に`TIPS:`と書けばHowToDirectionでなくHowToTipになる。
         if (Array.isArray(data)) { // 1層
-            return [...Array(data.length).keys()].map((d)=>{Google.SchemaOrg.HowToStepText(o)});
+            return data.map(v=>SchemaOrg.HowToStepText(v))
         } else if (data instanceof Map) {
             const result = []
             for (const [key, value] of data) {
                 if (Array.isArray(value)) { // 2層
-                    result.push([...Array(data.length).keys()].map((d)=>{Google.SchemaOrg.HowToStepDirections(key, value)})) 
+                    result.push([...Array(data.length).keys()].map((d)=>{SchemaOrg.HowToStepDirections(key, value)})) 
                 } else if (value instanceof Map) { // 3層
                     const steps = []
                     for (const [name, directions] of value) {
@@ -322,12 +322,14 @@ class SchemaOrg { // Googleが対応しているものだけ
             return result
         } else { throw new SchemaOrgParameterError(`HowToStepsの引数dataの1層目は配列かMap型のいずれかであるべきです。${typeof data}`); }
     }
-    static HowTo(name, steps, option) {
-        if (!option.hasOwnProperty('name')) { throw new SchemaOrgParameterError(`HowToの引数optionにはnameキーと値が必須です。`); }
-        option.name = name
-        option.step = this.HowToSteps(steps)
-        return new JsonLdGenerator(option)
+    static HowTo(name, steps, option=null) {
+        const opt = option || {}
+        opt['@type'] = 'HowTo'
+        opt.name = name
+        opt.step = this.HowToSteps(steps)
+        return new JsonLdGenerator(opt)
     }
+    /*
     static get HowTo() { return new JsonLdGenerator({
         '@type': 'HowTo',
         name: '',
@@ -487,7 +489,8 @@ class SchemaOrg { // Googleが対応しているものだけ
         '@type': 'HowToTip',
         text: '補足。',
     }); }
-    
+    */
+
     /*
     // 短編小説
     static get ShortStory() { return new JsonLdGenerator({
