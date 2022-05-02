@@ -83,6 +83,17 @@ class TestSchemaOrg { // Googleが対応しているものだけ
         const jsonLd = SchemaOrg.HowTo('ラズパイの起動方法', ['ACアダプタをコンセントに挿す。', '電源スイッチを入れる。', 'ブート完了を待つ。']).generate()
         console.log(this.#makeTag(jsonLd))
     }
+    testHowTo1Options() { // OKでプレビュー確認できたがオプション項目が表示されなかった。警告あり（任意項目12件未入力）
+        const jsonLd = SchemaOrg.HowTo('ラズパイの起動方法', 
+            ['ACアダプタをコンセントに挿す。', '電源スイッチを入れる。', 'ブート完了を待つ。'],
+            {
+                image: 'https://a.png',
+                totalTime: 'P2D3H4M5S',
+                estimatedCost: SchemaOrg.MonetaryAmount(123),
+            }
+        ).generate()
+        console.log(this.#makeTag(jsonLd))
+    }
 }
 const test = new TestSchemaOrg() 
 test.testBreadcrumbList()
@@ -93,4 +104,5 @@ test.testSimpleQuizes()
 test.testSimpleQuizesWithComment()
 test.testHowTo1Minimum()
 test.testHowTo1MultiStep()
+test.testHowTo1Options()
 </script>

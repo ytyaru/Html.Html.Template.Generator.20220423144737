@@ -233,11 +233,12 @@ class SchemaOrg { // Googleが対応しているものだけ
     }); }
     */
     // 価格
-    static get MonetaryAmount() { return new JsonLdGenerator({
+    static MonetaryAmount(value, currency='JPY') { return {
+        '@context': 'https://schema.org/',
         '@type': 'MonetaryAmount',
-        currency: 'JPY',
-        value: 100,
-    }); }
+        currency: currency,
+        value: value,
+    }}
     static HowToItem(type, option) {
         if (!option.hasOwnProperty('name')) { throw new SchemaOrgParameterError(`${type}の引数optionにはnameキーと値が必須です。`); }
         const result = {'@type': type}
@@ -323,8 +324,8 @@ class SchemaOrg { // Googleが対応しているものだけ
         } else { throw new SchemaOrgParameterError(`HowToStepsの引数dataの1層目は配列かMap型のいずれかであるべきです。${typeof data}`); }
     }
     static HowTo(name, steps, option=null) {
-        const opt = option || {}
-        opt['@type'] = 'HowTo'
+        //const opt = option || {}
+        const opt = {'@type': 'HowTo', ...option}
         opt.name = name
         opt.step = this.HowToSteps(steps)
         return new JsonLdGenerator(opt)
