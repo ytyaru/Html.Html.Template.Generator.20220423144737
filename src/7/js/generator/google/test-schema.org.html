@@ -11,7 +11,7 @@ class TestSchemaOrg { // Googleが対応しているものだけ
         parser: 'json',
         plugins: prettierPlugins,
     })}
-    testBreadcrumbList() {
+    testBreadcrumbList() { // OK! 警告もなし。だがプレビューできなかった。
         const data = new Map()
         data.set('🏠', 'https://example.com/index.html')
         data.set('階層1', 'https://example.com/category1/index.html')
@@ -19,7 +19,7 @@ class TestSchemaOrg { // Googleが対応しているものだけ
         const jsonLd = SchemaOrg.BreadcrumbList(data).generate()
         console.log(this.#makeTag(jsonLd))
     }
-    testFaqPage() {
+    testFaqPage() { // OK! プレビューもできたが上から順に2件しか表示されなかった。
         const data = new Map()
         data.set('これはよくある質問ですか？', 'はい、そうです。')
         data.set('これはどんな形式のデータで作られましたか？', 'JSON-LD形式です。schema.orgのうちGoogleの定義に従ったプロパティを使用しました。')
@@ -27,8 +27,61 @@ class TestSchemaOrg { // Googleが対応しているものだけ
         const jsonLd = SchemaOrg.FaqPage(data).generate()
         console.log(this.#makeTag(jsonLd))
     }
+    testSimpleQuiz() { // OKだが警告あり（任意項目18件未入力）
+        const title = 'クイズです'
+        const question = 'パンはパンでも食べられないパンは？'
+        const answer = 'フライパン'
+        const suggests = ['しまパン', 'チンギスパン']
+        const jsonLd = SchemaOrg.SimpleQuiz(title, question, answer, suggests).generate()
+        console.log(this.#makeTag(jsonLd))
+    }
+    testSimpleQuizWithComment() { // OKだが警告あり（任意項目15件未入力）
+        const title = 'クイズです'
+        const question = 'パンはパンでも食べられないパンは？'
+        const answer = ['フライパン', '固くて食べられないよ！']
+        const suggests = [['しまパン', 'その筋の人なら食べられます。'], ['チンギスパン', '有名な食べ物です。知らないんですか？']]
+        const jsonLd = SchemaOrg.SimpleQuiz(title, question, answer, suggests).generate()
+        console.log(this.#makeTag(jsonLd))
+    }
+    testSimpleQuizes() { // OKだが警告あり（任意項目35件未入力）
+        const title = 'クイズです'
+        const questions = []
+        questions.push({
+            question: 'パンはパンでも食べられないパンは？',
+            answer: 'フライパン',
+            suggests: ['しまパン', 'チンギスパン'],
+        })
+        questions.push({
+            question: '１＋１は？',
+            answer: '田',
+            suggests: ['２', '３'],
+        }) 
+        const jsonLd = SchemaOrg.SimpleQuizes(title, questions).generate()
+        console.log(this.#makeTag(jsonLd))
+    }
+    testSimpleQuizesWithComment() { // OKだが警告あり（任意項目29件未入力）
+        const title = 'クイズです'
+        const questions = []
+        questions.push({
+            question: 'パンはパンでも食べられないパンは？',
+            answer: ['フライパン', '固くて食べられないよ！'],
+            suggests: [['しまパン', 'その筋の人なら食べられます。'], ['チンギスパン', '有名な食べ物です。知らないんですか？']],
+        })
+        questions.push({
+            question: '１＋１は？',
+            answer: ['田', '1+1に=の線をそれぞれ上下に配置すると田になる。'],
+            suggests: [['２', '算数としては正解ですがクイズとしては不正解です。'], ['３', 'クイズとしても算数としても不正解です。']],
+        }) 
+        const jsonLd = SchemaOrg.SimpleQuizes(title, questions).generate()
+        console.log(this.#makeTag(jsonLd))
+    }
+
 }
 const test = new TestSchemaOrg() 
 test.testBreadcrumbList()
 test.testFaqPage()
+test.testSimpleQuiz()
+test.testSimpleQuizWithComment()
+test.testSimpleQuizes()
+test.testSimpleQuizesWithComment()
 </script>
