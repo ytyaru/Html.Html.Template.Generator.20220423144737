@@ -68,7 +68,7 @@ class SchemaOrg { // Googleが対応しているものだけ
     }); }
     // FAQ
     static #makeFaqList(data) { // data = new Map(); map[Q] = "A";
-        if (!(data instanceof Map)) { throw new SchemaOrgParameterError("引数dataはMap型にしてください。map = new Map(); map['質問1'] = '回答1';"); }
+        if (!(data instanceof Map)) { throw new SchemaOrgParameterError("引数dataはMap型にしてください。const map = new Map(); map.set('質問1', '回答1');"); }
         //if (!(data instanceof Map)) { throw new Error("引数dataはMap型にしてください。map = new Map(); map['質問1'] = '回答1';"); }
         const items = []
         for (const [question, answer] of data.entries()) {
@@ -238,6 +238,96 @@ class SchemaOrg { // Googleが対応しているものだけ
         currency: 'JPY',
         value: 100,
     }); }
+    static HowToItem(type, option) {
+        if (!option.hasOwnProperty('name')) { throw new SchemaOrgParameterError(`${type}の引数optionにはnameキーと値が必須です。`); }
+        const result = {'@type': type}
+        result['name'] = option.name
+        for (const key of ['image', 'requiredQuantity']) {
+            if (option.hasOwnProperty(key)) { result[key] = option[key]; }
+        }
+        return result
+    }
+    static HowToTool(option) { return this.HowToItem('HowToItem', options); }
+    static HowToTools(options) { return [...Array(options.length).keys()].map((o)=>{Google.SchemaOrg.HowToTool(o)}); }
+    static HowToSupply(option) {
+        const result = this.HowToItem('HowToSupply', options);
+        for (const key of ['estimatedCost']) {
+            if (option.hasOwnProperty(key)) { result[key] = option[key]; }
+        }
+        return result
+    }
+    static HowToSupplies(options) { return [...Array(options.length).keys()].map((o)=>{Google.SchemaOrg.HowToSupply(o)}); }
+    static HowToStepSection(name, steps) { return {
+        '@type': 'HowToSection',
+        name: name,
+        itemListElement: steps,
+    }}
+    static HowToStepText(data) {
+        const step = {'@type': 'HowToStep'}
+             if (data instanceof String) { step.text = data; }
+        else if (Array.isArray(data)) {
+            for (const d of data) {
+                if (!step.hasOwnProperty('text')) { step.text = d; }
+                else {
+                    if (['http://', 'https://'].some((schema)=>{d.toLowerCase().startsWith(schema)})) {
+                        if (['png','jpg','gif','webp','avif'].some((ext)=>{d.toLowerCase().endsWith('.'+ext)})) { step.image = d; }
+                        else { step.url = d; }
+                    }
+                    else { continue; }
+                }
+            }
+        }
+        else if (data instanceof Object) { step = data; } // text, url, image, 
+        else { throw new SchemaOrgParameterError(`HowToStepTextの引数dataはStringかObject型であるべきです。data = '手順'; data = {text:'手順', url:'https://...', image:'https://...'};`); }
+        return step
+    }
+    static HowToStepDirections(name, directions) {
+        const step = {'@type': 'HowToStep', 'name': name}
+        step.itemListElement = []
+        if (Array.isArray(directions)) {
+            for (const dir of directions) {
+                if (dir.toUpperCase().startsWith('TIP:')) { step.itemListElement.push(this.HowToTip(dir)); }
+                else { step.itemListElement.push(this.HowToDirection(dir)); }
+            }
+        }
+        else { throw new SchemaOrgParameterError(`HowToStepDirectionsの引数directionsは配列であるべきです。const ary = ['Direction1', 'TIP:ヒント'];`); }
+    }
+    /*
+    static HowToEnd(type, text) {
+        const EXPECTEDS = ['HowToTip','HowToDirection']
+        if (!EXPECTEDS.some((e)=>type === e)) { throw new SchemaOrgParameterError(`引数typeが不正値です。次のいずれかにしてください。\n${EXPECTEDS.join('\n')}`); }
+        return { '@type': type, text: text }
+    }
+    static HowToTip(text) { return this.HowToEnd('HowToTip', text); } 
+    static HowToDirection(text) { return this.HowToEnd('HowToDirection', text); } 
+    */
+    static HowToTip(text) { return { '@type': 'HowToTip', text: text }; } 
+    static HowToDirection(text) { return { '@type': 'HowToDirection', text: text }; } 
+    static HowToSteps(data) { // 階層1,2,3の3パターンある。2階層以上なら先頭に`TIPS:`と書けばHowToDirectionでなくHowToTipになる。
+        if (Array.isArray(data)) { // 1層
+            return [...Array(data.length).keys()].map((d)=>{Google.SchemaOrg.HowToStepText(o)});
+        } else if (data instanceof Map) {
+            const result = []
+            for (const [key, value] of data) {
+                if (Array.isArray(value)) { // 2層
+                    result.push([...Array(data.length).keys()].map((d)=>{Google.SchemaOrg.HowToStepDirections(key, value)})) 
+                } else if (value instanceof Map) { // 3層
+                    const steps = []
+                    for (const [name, directions] of value) {
+                        steps.push(Google.SchemaOrg.HowToStepDirections(name, directions))
+                    }
+                    result.push(this.HowToStepSection(key, steps))
+                } else { throw new SchemaOrgParameterError(`HowToStepsの引数dataの2層目は配列かMap型のいずれかであるべきです。${typeof value}`); }
+            }
+            return result
+        } else { throw new SchemaOrgParameterError(`HowToStepsの引数dataの1層目は配列かMap型のいずれかであるべきです。${typeof data}`); }
+    }
+    static HowTo(name, steps, option) {
+        if (!option.hasOwnProperty('name')) { throw new SchemaOrgParameterError(`HowToの引数optionにはnameキーと値が必須です。`); }
+        option.name = name
+        option.step = this.HowToSteps(steps)
+        return new JsonLdGenerator(option)
+    }
     static get HowTo() { return new JsonLdGenerator({
         '@type': 'HowTo',
         name: '',
@@ -431,7 +521,7 @@ class SchemaOrg { // Googleが対応しているものだけ
     }}
     // データセット（CSV,XMLなど）https://developers.google.com/search/docs/advanced/structured-data/dataset?hl=ja
     static Dataset(name, description, downloads, options={}) { // downloads = new Map() ['format'] = 'url'
-        if (!(downloads instanceof Map)) { throw new SchemaOrgParameterError("引数downloadsはMap型であるべきです。map['format'] = 'url'"); }
+        if (!(downloads instanceof Map)) { throw new SchemaOrgParameterError("引数downloadsはMap型であるべきです。const map = new Map(); map.set('format', 'url');"); }
         //if (!(downloads instanceof Map)) { throw new Error("引数downloadsはMap型であるべきです。map['format'] = 'url'"); }
         const distribution = []
         for (const [format, url] of downloads.entries()) { distribution.push(this.DataDownload(format, url)); }

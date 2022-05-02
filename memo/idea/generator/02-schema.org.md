@@ -334,15 +334,6 @@ Section.name
 
 　インターフェイスを考える。
 
-1層
-```javascript
-const steps = ['手順1', '手順2', '手順3']
-const options = {image: '完成画像URL'}
-options.suply = [Google.SchemaOrg.HowToSupply(name, image, requiredQuantity, estimatedCost)] 
-options.tool = [Google.SchemaOrg.HowToTool(name, image, requiredQuantity)]
-Google.SchemaOrg.HowTo(name, steps, options)
-```
-
 材料＆道具
 ```javascript
 Google.SchemaOrg.HowToSupply(name, image=null, requiredQuantity=1, estimatedCost=null)
@@ -363,6 +354,17 @@ HowToSupplies(options) {
     }
     return supplies
 }
+```
+
+1層
+```javascript
+const steps = ['手順1', '手順2', '手順3']
+const steps = [['手順1',url,image], ['手順2',url,image], ['手順3',url,image]]
+const steps = [{name:'手順1',url:'',image:''}, {name:'手順2'}, {name:'手順3'}]
+const options = {image: '完成画像URL'}
+options.suply = [Google.SchemaOrg.HowToSupply(name, image, requiredQuantity, estimatedCost)] 
+options.tool = [Google.SchemaOrg.HowToTool(name, image, requiredQuantity)]
+Google.SchemaOrg.HowTo(name, steps, options)
 ```
 
 2層
