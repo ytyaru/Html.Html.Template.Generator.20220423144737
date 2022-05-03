@@ -275,7 +275,7 @@ class SchemaOrg { // Googleが対応しているものだけ
                 else { step.text = d; }
             }
         }
-        else if (data instanceof Object) { step = data; } // text, url, image, 
+        else if (data instanceof Object) { Object.assign(step, data); } // text, url, image, 
         else { throw new SchemaOrgParameterError(`HowToStepTextの引数dataはStringか配列かObject型であるべきです。'${typeof data}' data = '手順'; data = {text:'手順', url:'https://...', image:'https://...'};, data = ['手順','https://a.html', 'https://a.jpg'];`); }
         if (!step.hasOwnProperty('text')) { throw new SchemaOrgParameterError(`HowToStepTextの引数dataにはtextが含まるようにセットしてください。dataはStringか配列かObject型であるべきです。data = '手順'; data = {text:'手順', url:'https://...', image:'https://...'}; data = ['手順','https://a.html', 'https://a.jpg']; とくに配列のときは文字列の先頭がhttp://やhttps://のとき、urlかimageとしてセットされ、textとしてセットされないので注意してください。`); }
         return step
