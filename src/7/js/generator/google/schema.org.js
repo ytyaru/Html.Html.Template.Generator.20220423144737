@@ -248,7 +248,7 @@ class SchemaOrg { // Googleが対応しているものだけ
         }
         return result
     }
-    static HowToTool(option) { return this.HowToItem('HowToItem', option); }
+    static HowToTool(option) { return this.HowToItem('HowToTool', option); }
     static HowToTools(options) { return [...Array(options.length).keys()].map((o)=>{Google.SchemaOrg.HowToTool(o)}); }
     static HowToSupply(option) {
         const result = this.HowToItem('HowToSupply', option);

@@ -109,6 +109,13 @@ class TestSchemaOrg { // Googleが対応しているものだけ
         ).generate()
         console.log(this.#makeTag(jsonLd))
     }
+    testHowToToolError() {
+        try { SchemaOrg.HowToTool({}); }
+        catch (e) {
+            if (!(e instanceof SchemaOrgParameterError)) { throw new UnitTestError(`エラーの型はSchemaOrgParameterErrorであるべきです。: ${e.constructor.name}`); }
+            if ('HowToToolの引数optionにはnameキーと値が必須です。' !== e.message) { throw new UnitTestError(`エラーメッセージは「HowToToolの引数optionにはnameキーと値が必須です。」であるべきです。: ${e.message}`); }
+        }
+    }
     testHowToSupplyError() {
         try { SchemaOrg.HowToSupply({}); }
         catch (e) {
@@ -146,6 +153,7 @@ test.testSimpleQuizesWithComment()
 test.testHowTo1Minimum()
 test.testHowTo1MultiStep()
 test.testHowTo1Options()
+test.testHowToToolError()
 test.testHowToSupplyError()
 </script>
 </script>
