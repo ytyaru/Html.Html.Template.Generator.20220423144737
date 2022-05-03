@@ -201,6 +201,16 @@ class TestSchemaOrg { // Googleが対応しているものだけ
         console.assert('HowToStep' === actual['@type'])
         console.assert('これは手順のうちのひとつです。' === actual.text)
     }
+    testHowToStepTextArray1Error() {
+        try {
+            SchemaOrg.HowToStepText(['https://a.html']);
+            throw new UnitTestError(`例外が発生すべきなのに発生していません。引数が不正値です。配列の要素にはhttp://またはhttps://ではじまらないテキストが必要です。`)
+        }
+        catch (e) {
+            if (!(e instanceof SchemaOrgParameterError)) { throw new UnitTestError(`エラーの型はSchemaOrgParameterErrorであるべきです。: ${e.constructor.name}`); }
+            if (`HowToStepTextの引数dataにはtextが含まるようにセットしてください。dataはStringか配列かObject型であるべきです。data = '手順'; data = {text:'手順', url:'https://...', image:'https://...'}; data = ['手順','https://a.html', 'https://a.jpg']; とくに配列のときは文字列の先頭がhttp://やhttps://のとき、urlかimageとしてセットされ、textとしてセットされないので注意してください。` !== e.message) { throw new UnitTestError(`エラーメッセージが不正です。: ${e.message}`); }
+        }
+    }
     testHowToStepTextArray2TextOnly() {
         const param = ['一度は手順textとしてセットされるが後続値に上書きされる', 'この値が手順textとしてセットされる']
         const actual = SchemaOrg.HowToStepText(param)
@@ -239,7 +249,7 @@ class TestSchemaOrg { // Googleが対応しているものだけ
         console.assert('https://a.jpg' === actual.image)
         console.assert(false === actual.hasOwnProperty('url'))
     }
-    testHowToStepTextArray2UrlImage() {
+    testHowToStepTextArray2UrlImageError() {
         const param = ['https://a.html', 'https://a.jpg']
         try {
             SchemaOrg.HowToStepText(param);
@@ -277,6 +287,17 @@ class TestSchemaOrg { // Googleが対応しているものだけ
         console.assert('これは手順のうちのひとつです。' === actual.text)
         console.assert('https://a.html' === actual.url)
         console.assert('https://a.jpg' === actual.image)
+    }
+    testHowToStepTextArray3UrlUrlImageError() {
+        const param = ['https://a.htmlからはじまる手順のつもりで書いたテキスト', 'https://a.html', 'https://a.jpg']
+        try {
+            SchemaOrg.HowToStepText(param);
+            throw new UnitTestError(`例外が発生すべきなのに発生していません。引数が不正値です。配列の要素にはhttp://またはhttps://ではじまらないテキストが必要です。`)
+        }
+        catch (e) {
+            if (!(e instanceof SchemaOrgParameterError)) { throw new UnitTestError(`エラーの型はSchemaOrgParameterErrorであるべきです。: ${e.constructor.name}`); }
+            if (`HowToStepTextの引数dataにはtextが含まるようにセットしてください。dataはStringか配列かObject型であるべきです。data = '手順'; data = {text:'手順', url:'https://...', image:'https://...'}; data = ['手順','https://a.html', 'https://a.jpg']; とくに配列のときは文字列の先頭がhttp://やhttps://のとき、urlかimageとしてセットされ、textとしてセットされないので注意してください。` !== e.message) { throw new UnitTestError(`エラーメッセージが不正です。: ${e.message}`); }
+        }
     }
     /*
     testHowTo1OptionsSupplyTool() { // OKでプレビュー確認できたがオプション項目が表示されなかった。警告あり（任意項目12件未入力）
@@ -320,15 +341,17 @@ test.testHowToTools()
 test.testHowToSupplies()
 test.testHowToStepTextString()
 test.testHowToStepTextArray1()
+test.testHowToStepTextArray1Error()
 test.testHowToStepTextArray2TextOnly()
 test.testHowToStepTextArray2TextUrl()
 test.testHowToStepTextArray2UrlText()
 test.testHowToStepTextArray2TextImage()
 test.testHowToStepTextArray2ImageText()
-test.testHowToStepTextArray2UrlImage()
+test.testHowToStepTextArray2UrlImageError()
 test.testHowToStepTextArray3TextUrlImage()
 test.testHowToStepTextArray3TextImageUrl()
 test.testHowToStepTextArray3ImageUrlText()
 test.testHowToStepTextArray3ImageTextUrl()
+test.testHowToStepTextArray3UrlUrlImageError()
 </script>
 </script>
