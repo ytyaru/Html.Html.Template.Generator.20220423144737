@@ -266,20 +266,18 @@ class SchemaOrg { // Googleが対応しているものだけ
     static HowToStepText(data) {
         const step = {'@type': 'HowToStep'}
              if ('string' === typeof data) { step.text = data; }
-        else if (Array.isArray(data)) {
+        else if (Array.isArray(data)) { // dataが配列のとき。要素値は文字列であることが期待される。その値によりtext,url,imageのいずれかであるか判定する（文字列の先頭がHTTPスキームであるか否かと、末尾が画像の拡張子であるかで行う）
             for (const d of data) {
-                if (!step.hasOwnProperty('text')) { step.text = d; }
-                else {
-                    if (['http://', 'https://'].some((schema)=>{d.toLowerCase().startsWith(schema)})) {
-                        if (['png','jpg','gif','webp','avif'].some((ext)=>{d.toLowerCase().endsWith('.'+ext)})) { step.image = d; }
-                        else { step.url = d; }
-                    }
-                    else { continue; }
+                if (['http://', 'https://'].some((schema)=>d.toLowerCase().startsWith(schema))) {
+                    if (['png','jpg','gif','webp','avif'].some((ext)=>d.toLowerCase().endsWith('.'+ext))) { step.image = d; }
+                    else { step.url = d; }
                 }
+                else { step.text = d; }
             }
         }
         else if (data instanceof Object) { step = data; } // text, url, image, 
-        else { throw new SchemaOrgParameterError(`HowToStepTextの引数dataはStringかObject型であるべきです。'${typeof data}' data = '手順'; data = {text:'手順', url:'https://...', image:'https://...'};`); }
+        else { throw new SchemaOrgParameterError(`HowToStepTextの引数dataはStringか配列かObject型であるべきです。'${typeof data}' data = '手順'; data = {text:'手順', url:'https://...', image:'https://...'};, data = ['手順','https://a.html', 'https://a.jpg'];`); }
+        if (!step.hasOwnProperty('text')) { throw new SchemaOrgParameterError(`HowToStepTextの引数dataにはtextが含まるようにセットしてください。dataはStringか配列かObject型であるべきです。data = '手順'; data = {text:'手順', url:'https://...', image:'https://...'}; data = ['手順','https://a.html', 'https://a.jpg']; とくに配列のときは文字列の先頭がhttp://やhttps://のとき、urlかimageとしてセットされ、textとしてセットされないので注意してください。`); }
         return step
     }
     static HowToStepDirections(name, directions) {
