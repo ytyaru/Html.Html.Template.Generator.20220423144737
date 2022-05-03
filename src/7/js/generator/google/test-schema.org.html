@@ -338,7 +338,6 @@ class TestSchemaOrg { // Googleが対応しているものだけ
             'ACアダプタをコンセントに挿す', 
             'ブートが完了するのを待つ', 
             'TIP:待機時間はHDDなら60秒、SSDなら30秒くらいだよ'])
-        console.log(actual)
         console.assert('HowToStep' === actual['@type'])
         console.assert('ラズパイの起動方法' === actual.name)
         console.assert(3 === actual.itemListElement.length)
@@ -357,6 +356,126 @@ class TestSchemaOrg { // Googleが対応しているものだけ
         catch (e) {
             if (!(e instanceof SchemaOrgParameterError)) { throw new UnitTestError(`エラーの型はSchemaOrgParameterErrorであるべきです。: ${e.constructor.name}`); }
             if (`HowToStepDirectionsの引数directionsは配列であるべきです。const ary = ['Direction1', 'TIP:ヒント'];` !== e.message) { throw new UnitTestError(`エラーメッセージが不正です。: ${e.message}`); }
+        }
+    }
+    testHowToSteps1Minimum() {
+        const actual = SchemaOrg.HowToSteps(['手順'])
+        console.assert(Array.isArray(actual))
+        console.assert(1 === actual.length)
+        console.assert('HowToStep' === actual[0]['@type'])
+        console.assert(false === actual[0].hasOwnProperty('name'))
+        console.assert('手順' === actual[0].text)
+    }
+    testHowToSteps1Multi() {
+        const actual = SchemaOrg.HowToSteps(['手順1','手順2','TIP:1層しかないときはHowToTip型にできないよ！'])
+        console.assert(Array.isArray(actual))
+        console.assert(3 === actual.length)
+        for (let i=0; i<actual.length; i++) {
+            console.assert('HowToStep' === actual[i]['@type'])
+            console.assert(false === actual[i].hasOwnProperty('name'))
+        }
+        console.assert('手順1' === actual[0].text)
+        console.assert('手順2' === actual[1].text)
+        console.assert('TIP:1層しかないときはHowToTip型にできないよ！' === actual[2].text)
+    }
+    testHowToSteps2() {
+        const steps = new Map()
+        steps.set('手順カテゴリ1', ['具体的な手順1-1', '具体的な手順1-2'])
+        steps.set('手順カテゴリ2', ['具体的な手順2-1', '具体的な手順2-2', '具体的な手順2-3'])
+        steps.set('手順カテゴリ3', ['具体的な手順3-1', '具体的な手順3-2', 'TIP:ヒント', '具体的な手順3-3'])
+        const actual = SchemaOrg.HowToSteps(steps)
+        console.assert(Array.isArray(actual))
+        //console.debug(actual)
+        console.assert(3 === actual.length)
+        for (let i=0; i<actual.length; i++) {
+            console.assert('HowToStep' === actual[i]['@type'])
+            console.assert(`手順カテゴリ${i+1}` === actual[i].name)
+            console.assert(Array.isArray(actual[i].itemListElement))
+            console.assert((i+2) === actual[i].itemListElement.length)
+        }
+        console.assert('HowToDirection' === actual[0].itemListElement[0]['@type'])
+        console.assert('具体的な手順1-1' === actual[0].itemListElement[0].text)
+        console.assert('HowToDirection' === actual[0].itemListElement[1]['@type'])
+        console.assert('具体的な手順1-2' === actual[0].itemListElement[1].text)
+        console.assert('HowToDirection' === actual[1].itemListElement[0]['@type'])
+        console.assert('具体的な手順2-1' === actual[1].itemListElement[0].text)
+        console.assert('HowToDirection' === actual[1].itemListElement[1]['@type'])
+        console.assert('具体的な手順2-2' === actual[1].itemListElement[1].text)
+        console.assert('HowToDirection' === actual[1].itemListElement[2]['@type'])
+        console.assert('具体的な手順2-3' === actual[1].itemListElement[2].text)
+        console.assert('HowToDirection' === actual[1].itemListElement[0]['@type'])
+        console.assert('具体的な手順2-1' === actual[1].itemListElement[0].text)
+        console.assert('HowToDirection' === actual[1].itemListElement[1]['@type'])
+        console.assert('具体的な手順2-2' === actual[1].itemListElement[1].text)
+        console.assert('HowToDirection' === actual[1].itemListElement[2]['@type'])
+        console.assert('具体的な手順2-3' === actual[1].itemListElement[2].text)
+        console.assert('HowToDirection' === actual[2].itemListElement[0]['@type'])
+        console.assert('具体的な手順3-1' === actual[2].itemListElement[0].text)
+        console.assert('HowToDirection' === actual[2].itemListElement[1]['@type'])
+        console.assert('具体的な手順3-2' === actual[2].itemListElement[1].text)
+        console.assert('HowToTip' === actual[2].itemListElement[2]['@type'])
+        console.assert('ヒント' === actual[2].itemListElement[2].text)
+        console.assert('HowToDirection' === actual[2].itemListElement[3]['@type'])
+        console.assert('具体的な手順3-3' === actual[2].itemListElement[3].text)
+    }
+    testHowToSteps3() {
+        const steps = new Map()
+        const sec1 = new Map()
+        const sec2 = new Map()
+        const sec3 = new Map()
+        sec1.set('ラズパイを起動する', [
+                'ACアダプタをコンセントに挿す', 
+                'ブートが完了するのを待つ', 
+                'TIP:待機時間はHDDなら60秒、SSDなら30秒くらいだよ'])
+        sec2.set('ブラウザを起動する', [
+                'システムメニューアイコンをクリックする', 
+                'TIP:タスクバーの左上にあるラズパイ印だよ',
+                'インターネット→Chromiumをクリックする',
+            ])
+        sec3.set('ブラウザを終了する', [
+                'ブラウザのタイトルバーにある❌ボタンをクリックする'
+            ])
+        steps.set('準備', sec1)
+        steps.set('手順', sec2)
+        steps.set('後始末', sec3)
+        const actual = SchemaOrg.HowToSteps(steps)
+        //console.debug(actual)
+        console.assert(Array.isArray(actual))
+        console.assert(3 === actual.length)
+
+        const sectionNames = ['準備', '手順', '後始末']
+        for (let i=0; i<actual.length; i++) {
+            console.assert('HowToSection' === actual[i]['@type'])
+            console.assert(sectionNames[i] === actual[i].name)
+            console.assert(Array.isArray(actual[i].itemListElement))
+            console.assert(1 === actual[i].itemListElement.length)
+
+            const stepNames = ['ラズパイを起動する', 'ブラウザを起動する', 'ブラウザを終了する']
+            for (let k=0; k<actual[i].itemListElement.length; k++) {
+                console.assert('HowToStep' === actual[i].itemListElement[k]['@type'])
+                console.assert(stepNames[i] === actual[i].itemListElement[k].name)
+                const directionTexts = []
+                if (0 === i) {
+                    directionTexts.push('ACアダプタをコンセントに挿す')
+                    directionTexts.push('ブートが完了するのを待つ')
+                    directionTexts.push('TIP:待機時間はHDDなら60秒、SSDなら30秒くらいだよ')
+                } else if (1 === i) {
+                    directionTexts.push('システムメニューアイコンをクリックする')
+                    directionTexts.push('TIP:タスクバーの左上にあるラズパイ印だよ')
+                    directionTexts.push('インターネット→Chromiumをクリックする')
+                } else if (2 === i) {
+                    directionTexts.push('ブラウザのタイトルバーにある❌ボタンをクリックする')
+                }
+                for (let m=0; m<directionTexts.length; m++) {
+                    if (directionTexts[m].startsWith('TIP:')) {
+                        console.assert('HowToTip' === actual[i].itemListElement[k].itemListElement[m]['@type'])
+                        console.assert(directionTexts[m].slice('TIP:'.length) === actual[i].itemListElement[k].itemListElement[m].text)
+                    } else {
+                        console.assert('HowToDirection' === actual[i].itemListElement[k].itemListElement[m]['@type'])
+                        console.assert(directionTexts[m] === actual[i].itemListElement[k].itemListElement[m].text)
+                    }
+                }
+            }
         }
     }
 }
@@ -400,5 +519,9 @@ test.testHowToStepDirectionsMinimum()
 test.testHowToStepDirectionsMinimumTip()
 test.testHowToStepDirectionsMulti()
 test.testHowToStepDirectionsError()
+test.testHowToSteps1Minimum()
+test.testHowToSteps1Multi()
+test.testHowToSteps2()
+test.testHowToSteps3()
 </script>
 </script>

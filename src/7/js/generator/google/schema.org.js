@@ -292,15 +292,6 @@ class SchemaOrg { // Googleが対応しているものだけ
         else { throw new SchemaOrgParameterError(`HowToStepDirectionsの引数directionsは配列であるべきです。const ary = ['Direction1', 'TIP:ヒント'];`); }
         return step
     }
-    /*
-    static HowToEnd(type, text) {
-        const EXPECTEDS = ['HowToTip','HowToDirection']
-        if (!EXPECTEDS.some((e)=>type === e)) { throw new SchemaOrgParameterError(`引数typeが不正値です。次のいずれかにしてください。\n${EXPECTEDS.join('\n')}`); }
-        return { '@type': type, text: text }
-    }
-    static HowToTip(text) { return this.HowToEnd('HowToTip', text); } 
-    static HowToDirection(text) { return this.HowToEnd('HowToDirection', text); } 
-    */
     static HowToTip(text) { return { '@type': 'HowToTip', text: text }; } 
     static HowToDirection(text) { return { '@type': 'HowToDirection', text: text }; } 
     static HowToSteps(data) { // 階層1,2,3の3パターンある。2階層以上なら先頭に`TIPS:`と書けばHowToDirectionでなくHowToTipになる。
@@ -310,11 +301,11 @@ class SchemaOrg { // Googleが対応しているものだけ
             const result = []
             for (const [key, value] of data) {
                 if (Array.isArray(value)) { // 2層
-                    result.push([...Array(data.length).keys()].map((d)=>{SchemaOrg.HowToStepDirections(key, value)})) 
+                    result.push(SchemaOrg.HowToStepDirections(key, value))
                 } else if (value instanceof Map) { // 3層
                     const steps = []
                     for (const [name, directions] of value) {
-                        steps.push(Google.SchemaOrg.HowToStepDirections(name, directions))
+                        steps.push(SchemaOrg.HowToStepDirections(name, directions))
                     }
                     result.push(this.HowToSection(key, steps))
                 } else { throw new SchemaOrgParameterError(`HowToStepsの引数dataの2層目は配列かMap型のいずれかであるべきです。${typeof value}`); }
