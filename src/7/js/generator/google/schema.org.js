@@ -258,7 +258,7 @@ class SchemaOrg { // Googleが対応しているものだけ
         return result
     }
     static HowToSupplies(options) { return options.map((o)=>SchemaOrg.HowToSupply(o)); }
-    static HowToStepSection(name, steps) { return {
+    static HowToSection(name, steps) { return {
         '@type': 'HowToSection',
         name: name,
         itemListElement: steps,
@@ -317,7 +317,7 @@ class SchemaOrg { // Googleが対応しているものだけ
                     for (const [name, directions] of value) {
                         steps.push(Google.SchemaOrg.HowToStepDirections(name, directions))
                     }
-                    result.push(this.HowToStepSection(key, steps))
+                    result.push(this.HowToSection(key, steps))
                 } else { throw new SchemaOrgParameterError(`HowToStepsの引数dataの2層目は配列かMap型のいずれかであるべきです。${typeof value}`); }
             }
             return result

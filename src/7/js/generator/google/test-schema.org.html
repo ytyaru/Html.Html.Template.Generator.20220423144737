@@ -138,24 +138,28 @@ class TestSchemaOrg { // Googleが対応しているものだけ
     testHowToToolMinimum() {
         const expected = 'ドライバー（＋）'
         const tool = SchemaOrg.HowToTool({name: expected});
+        console.assert('HowToTool' === tool['@type'])
         console.assert(expected === tool.name)
     }
     testHowToToolWithImage() {
         const name = 'ドライバー（＋）'
         const image = 'https://a.png'
         const tool = SchemaOrg.HowToTool({name: name, image: image});
+        console.assert('HowToTool' === tool['@type'])
         console.assert(name === tool.name)
         console.assert(image === tool.image)
     }
     testHowToSupplyMinimum() {
         const expected = 'A4用紙'
         const supply = SchemaOrg.HowToSupply({name: expected});
+        console.assert('HowToSupply' === supply['@type'])
         console.assert(expected === supply.name)
     }
     testHowToSupplyWithImage() {
         const name = 'A4用紙'
         const image = 'https://a.png'
         const supply = SchemaOrg.HowToSupply({name: name, image: image});
+        console.assert('HowToSupply' === supply['@type'])
         console.assert(name === supply.name)
         console.assert(image === supply.image)
     }
@@ -167,7 +171,9 @@ class TestSchemaOrg { // Googleが対応しているものだけ
             image: 'https://b.jpg'
         }]
         const actual = SchemaOrg.HowToTools(tools);
+        console.assert('HowToTool' === actual[0]['@type'])
         console.assert('ドライバー（＋）' === actual[0].name)
+        console.assert('HowToTool' === actual[1]['@type'])
         console.assert('トンカチ（かなづち、ハンマー）' === actual[1].name)
         console.assert('https://b.jpg' === actual[1].image)
     }
@@ -178,10 +184,17 @@ class TestSchemaOrg { // Googleが対応しているものだけ
             name: '空き缶（350ml）',
             image: 'https://c.gif'
         }]
-        const actual = SchemaOrg.HowToTools(supplies);
+        const actual = SchemaOrg.HowToSupplies(supplies);
+        console.assert('HowToSupply' === actual[0]['@type'])
         console.assert('A4用紙' === actual[0].name)
+        console.assert('HowToSupply' === actual[1]['@type'])
         console.assert('空き缶（350ml）' === actual[1].name)
         console.assert('https://c.gif' === actual[1].image)
+    }
+    testHowToStepTextString() {
+        const actual = SchemaOrg.HowToStepText('これは手順のうちのひとつです。')
+        console.assert('HowToStep' === actual['@type'])
+        console.assert('これは手順のうちのひとつです。' === actual.text)
     }
     /*
     testHowTo1OptionsSupplyTool() { // OKでプレビュー確認できたがオプション項目が表示されなかった。警告あり（任意項目12件未入力）
@@ -223,5 +236,6 @@ test.testHowToSupplyMinimum()
 test.testHowToSupplyWithImage()
 test.testHowToTools()
 test.testHowToSupplies()
+test.testHowToStepTextString()
 </script>
 </script>
