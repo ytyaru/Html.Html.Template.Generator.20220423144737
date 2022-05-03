@@ -379,6 +379,9 @@ class TestSchemaOrg { // Googleが対応しているものだけ
         console.assert('TIP:1層しかないときはHowToTip型にできないよ！' === actual[2].text)
     }
     testHowToSteps2() {
+        // 以下のようなI/Fにすべきでは？
+        // SchemaOrg.HowToSteps(['手順1', ['手順1-1', '手順1-2'], '手順2', ['手順2-1', '手順2-1']])
+        // SchemaOrg.HowToSteps([{name:'手順1', image:'URL', steps:['手順1-1', '手順1-2']}, {name:'手順2', image:'URL', steps:['手順2-1', '手順2-1']}])
         const steps = new Map()
         steps.set('手順カテゴリ1', ['具体的な手順1-1', '具体的な手順1-2'])
         steps.set('手順カテゴリ2', ['具体的な手順2-1', '具体的な手順2-2', '具体的な手順2-3'])
@@ -419,6 +422,9 @@ class TestSchemaOrg { // Googleが対応しているものだけ
         console.assert('具体的な手順3-3' === actual[2].itemListElement[3].text)
     }
     testHowToSteps3() {
+        // 以下のようなI/Fにすべきでは？
+        // SchemaOrg.HowToSteps([{name:'セクション1', steps:[{name:'手順1', image:'URL', steps:['手順1-1', '手順1-2']}]}, {name:'セクション2', steps:[{name:'手順2', image:'URL', steps:['手順2-1', '手順2-1']}]])
+        // HowToStepTextとHowToStepDirectionsの分岐をどうするか。どちらも[{}]型になってしまう。唯一の違いは{}.stepsキーの有無。
         const steps = new Map()
         const sec1 = new Map()
         const sec2 = new Map()

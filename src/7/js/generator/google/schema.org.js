@@ -313,6 +313,24 @@ class SchemaOrg { // Googleが対応しているものだけ
             return result
         } else { throw new SchemaOrgParameterError(`HowToStepsの引数dataの1層目は配列かMap型のいずれかであるべきです。${typeof data}`); }
     }
+    static #routeHowToStepDeps(data) { // 引数dataにより階層1,2,3のどれか判定して実行する。
+        if (Array.isArray(data)) {
+            for (const d of data) {
+                if (d.hasOwnProperty('steps')) { return this.#HowToSteps1(data); }
+
+                }
+            }
+        }
+    }
+    static #HowToSteps1(data) { // 階層1,2,3の3パターンある。2階層以上なら先頭に`TIPS:`と書けばHowToDirectionでなくHowToTipになる。
+        if (Array.isArray(data)) {
+            for (const d of data) {
+                if (d.hasOwnProperty('steps')) {
+
+                }
+            }
+        }
+    }
     static HowTo(name, steps, option=null) {
         //const opt = option || {}
         const opt = {'@type': 'HowTo', ...option}

@@ -389,6 +389,302 @@ const options = {image: 'URL'}
 Google.SchemaOrg.HowTo(name, steps, options)
 ```
 
+##### Map
+
+　まずnew Map()が思ったように使えなかった。オブジェクトと同じように挿入できると思っていたが、できない。
+
+* [Map](https://developer.mozilla.org/ja/docs/Web/JavaScript/Reference/Global_Objects/Map)
+
+　以下のように`set`メソッドを使ってキーと値をセットする。
+
+```javascript
+const map = new Map()
+map.set('キー', '値')
+```
+
+　そのため値を代入するとき、すごく面倒になり、読みづらい。
+
+3層
+```javascript
+const steps = new Map()
+const sec1 = new Map()
+const sec2 = new Map()
+const sec3 = new Map()
+sec1.set('ラズパイを起動する', [
+        'ACアダプタをコンセントに挿す', 
+        'ブートが完了するのを待つ', 
+        'TIP:待機時間はHDDなら60秒、SSDなら30秒くらいだよ'])
+sec2.set('ブラウザを起動する', [
+        'システムメニューアイコンをクリックする', 
+        'TIP:タスクバーの左上にあるラズパイ印だよ',
+        'インターネット→Chromiumをクリックする',
+    ])
+sec3.set('ブラウザを終了する', [
+        'ブラウザのタイトルバーにある❌ボタンをクリックする'
+    ])
+steps.set('準備', sec1)
+steps.set('手順', sec2)
+steps.set('後始末', sec3)
+```
+
+　階層順がめちゃくちゃ。読みづらい。
+
+2層
+```javascript
+const steps = new Map()
+steps.set('手順カテゴリ1', ['具体的な手順1-1', '具体的な手順1-2'])
+steps.set('手順カテゴリ2', ['具体的な手順2-1', '具体的な手順2-2', '具体的な手順2-3'])
+steps.set('手順カテゴリ3', ['具体的な手順3-1', '具体的な手順3-2', 'TIP:ヒント', '具体的な手順3-3'])
+```
+
+　2層だけならまだ読みやすい。
+
+　ところで、HowToStepに`image`や`url`などの補足情報を付与したいとき、この形式だと困る。
+
+　とりあえず現状の実装におけるパターンは以下。2,3層のとき`image`や`url`などの補足情報を付与できない。その機能を追加したい。
+
+```
+dataパターン
+    HowToStepText String ['手順','手順','手順']
+    HowToStepText Array  ['手順','https://a.html','https://a.jpg']
+    HowToStepText Object {text:'手順', url:'https://a.html', image:'https://a.jpg'}
+    HowToStepDirections Array [['手順','手順'], ['手順','手順']]
+追加パターン
+    HowToStepDirections Object [{name:'', steps:['手順','手順'], image:''}, {name:'', steps:['手順','手順'], image:''}]
+```
+
+　それに加えて、もっと簡単に書きたい。
+
+　記法を検討してみる。
+
+```
+1層
+    ['手順1', '手順2']
+    [['手順1','https://a.html','https://a.jpg'], ['手順2','https://a.html','https://a.jpg']]
+    [{text:'手順1',url:'https://a.html',image:'https://a.jpg'}, {...}]
+2層
+    [{name:'手順1',steps:['手順1-1', '手順1-2']}, {name:'手順2',steps:['手順2-1', '手順2-2']}]
+    [{name:'手順1',steps:[['手順1-1','URL','imgURL'], [...]]}, {...}]
+    [{name:'手順1',steps:[{text:'手順1',url:'https://a.html',image:'https://a.jpg'}, {text:'手順2',url:'https://a.html',image:'https://a.jpg'}]}, {...}]
+    ['手順1', [['手順1-1','URL','imgURL'],[...]], '手順2', [['手順2-1','URL','imgURL'],[...]]]
+3層
+    ['準備', ['準備1',[['準備1-1','URL','imgURL'],[...]], '手順', [['手順1-1','URL','imgURL'],[...]], '後始末', [['後始末1-1','URL','imgURL'],[...]]]]
+```
+
+　Objectにするとキー名を書かねばならず、冗長になってしまう。どうせ`name`,`text`,`url`,`image`の4つしかないので、なんとか省略したい。そこで配列を使う。
+
+* 配列内でキーと値を交互に表示することで`name`属性キーを排除する
+* 配列内テキストが`https://`ではじまるものは`url`属性値である
+* 配列内テキストが`https://`ではじまるもののうち画像の拡張子で終わるものは`image`属性値である
+
+　問題は、これらのパターンを確実に識別できるか否か。
+
+* 1,2,3層のどれであるか
+* `text`のみか、`url`,`image`のオプションがあるのか
+
+1層
+```
+['手順1', '手順2']
+```
+
+1層＋オプション
+```
+[['手順1', 'https://a.jpg'], ['手順2', 'https://a.jpg']]
+[['手順1', 'https://a.html'], ['手順2', 'https://a.html']]
+[['手順1', 'https://a.html', 'https://a.jpg'], ['手順2', 'https://a.html', 'https://a.jpg']]
+```
+
+2層
+```
+['手順1', ['手順1-1', '手順1-2'], '手順2', ['手順2-1','手順2-2']]
+```
+
+2層＋オプション
+```
+['手順1', [['手順1-1','URL','imgURL'],[...]], '手順2', [['手順2-1','URL','imgURL'],[...]]]
+```
+
+3層
+```
+['準備', ['準備1',[['準備1-1','準備1-2'],[...]], '手順', [['手順1-1','手順1-2'],[...]], '後始末', [['後始末1-1','後始末1-2'],[...]]]]
+```
+
+3層＋オプション
+```
+['準備', ['準備1',[['準備1-1','URL','imgURL'],[...]], '手順', [['手順1-1','URL','imgURL'],[...]], '後始末', [['後始末1-1','URL','imgURL'],[...]]]]
+```
+
+3層＋オプションを読みやすく書いてみる。
+```
+const steps = [
+'準備', [
+    '準備1',[[
+        '準備1-1',
+        'URL',
+        'imgURL'
+        ],[
+        '準備1-2',
+        'URL',
+        'imgURL'
+    ]],
+    '準備2',[[
+        ...
+    ]],
+'手順', [[
+    '手順1',[[
+        '手順1-1',
+        'URL',
+        'imgURL'
+        ],[
+        '手順1-2',
+        'URL',
+        'imgURL'
+    ]],
+    '手順2',[[
+        ...
+    ]],
+]],
+'後始末', [[
+    '後始末1',[[
+        '後始末1-1',
+        'URL',
+        'imgURL'
+        ],[
+        '後始末1-2',
+        'URL',
+        'imgURL'
+    ]],
+    '後始末2',[[
+        ...
+    ]],
+]]
+]
+```
+
+　とても書いてられない。プレーンテキストで定義したい。
+
+1層
+```
+手順1
+手順2
+```
+
+1層＋オプション
+```
+手順1   https://a.html      https://a.jpg
+手順2   https://a.html      https://a.jpg
+```
+
+2層
+```
+手順1
+    手順1-1
+    手順1-2
+手順2
+    手順1-1
+    手順1-2
+```
+
+2層＋オプション
+```
+手順1   https://a.html      https://a.jpg
+    手順1-1
+    手順1-2
+手順2   https://a.html      https://a.jpg
+    手順1-1
+    手順1-2
+```
+
+2層＋部分的に1層
+```
+手順1   https://a.html      https://a.jpg
+    手順1-1
+    手順1-2
+手順2   https://a.html      https://a.jpg
+```
+
+3層
+```
+準備
+    準備1
+        準備1-1
+        準備1-2
+    準備2
+        準備1-1
+        準備1-2
+手順
+    手順1
+        手順1-1
+        手順1-2
+    手順2
+        手順1-1
+        手順1-2
+後始末
+    後始末1
+        後始末1-1
+        後始末1-2
+    後始末手順2
+        後始末1-1
+        後始末1-2
+```
+
+3層＋オプション
+```
+準備
+    準備1   https://a.html      https://a.jpg
+        準備1-1
+        準備1-2
+    準備2   https://a.html      https://a.jpg
+        準備1-1
+        準備1-2
+手順
+    手順1   https://a.html      https://a.jpg
+        手順1-1
+        手順1-2
+    手順2   https://a.html      https://a.jpg
+        手順1-1
+        手順1-2
+後始末
+    後始末1   https://a.html      https://a.jpg
+        後始末1-1
+        後始末1-2
+    後始末手順2   https://a.html      https://a.jpg
+        後始末1-1
+        後始末1-2
+```
+
+3層＋部分的に2層
+```
+準備
+    準備1   https://a.html      https://a.jpg
+        準備1-1
+        準備1-2
+    準備2   https://a.html      https://a.jpg
+手順
+    手順1   https://a.html      https://a.jpg
+        手順1-1
+        手順1-2
+    手順2   https://a.html      https://a.jpg
+後始末
+    後始末1   https://a.html      https://a.jpg
+        後始末1-1
+        後始末1-2
+    後始末手順2   https://a.html      https://a.jpg
+```
+
+　これを解析してshcmema.orgに変換せねばならない。超大変そう。TreeTextみたいに特定の形式を定義し、それに従って解析する。そのルールを明確にし、解析中にどんな情報がほしいか考えねばならない。
+
+* インデント（TAB,SPACE(何文字か)）
+* 現在の階層
+* 名前＋メタデータ
+
+　話をもどす。
+
+　3層にしたら部分的に1層にすることはできないはず。それは想定外の用途である。最上位はHowToSectionであり、[必ずitemListElementにHowToStepの配列が入っていることが期待される][how-to-section]から。いや、でも、どうなんだ？　[リッチリザルト][]でテストしてみないとわからない。
+
+* [how-to-section]:https://developers.google.com/search/docs/advanced/structured-data/how-to?hl=ja#how-to-section
+* [リッチリザルト]:https://search.google.com/test/rich-results?hl=ja
+
 #### カスタム例外
 
 * https://developer.mozilla.org/ja/docs/Web/JavaScript/Reference/Global_Objects/Error
