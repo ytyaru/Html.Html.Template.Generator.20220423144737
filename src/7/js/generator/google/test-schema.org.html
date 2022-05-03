@@ -1,7 +1,22 @@
+<!--<script src="../../../lib/extensible-custom-error/0.0.7/full.js"></script>-->
+<script src="../../../lib/extensible-custom-error/0.0.7/min.js"></script>
 <script src="../../../lib/prettier/2.6.2/standalone.js"></script>
 <script src="../../../lib/prettier/2.6.2/parser-babel.js"></script>
 <script src="schema.org.js"></script>
 <script>
+class UnitTestError extends ExtensibleCustomError {}
+/*
+class UnitTestError extends Error {
+    constructor(message) {
+        super(message);
+        this.name = this.constructor.name;
+        // V8のとき必要
+        if (Error.captureStackTrace) { Error.captureStackTrace(this, this.constructor); }
+        // ES5やそれ以前のとき必要
+        Object.setPrototypeOf(this, new.target.prototype);
+    }
+}
+*/
 // 出力されたJSON-LDは以下URLのリッチリザルトでバリデートする
 // https://search.google.com/test/rich-results?hl=ja
 // <script type="application/ld+json"><\/script> で囲う必要がある。
@@ -94,6 +109,32 @@ class TestSchemaOrg { // Googleが対応しているものだけ
         ).generate()
         console.log(this.#makeTag(jsonLd))
     }
+    testHowToSupplyError() {
+        try { SchemaOrg.HowToSupply({}); }
+        catch (e) {
+            if (!(e instanceof SchemaOrgParameterError)) { throw new UnitTestError(`エラーの型はSchemaOrgParameterErrorであるべきです。: ${e.constructor.name}`); }
+            if ('HowToSupplyの引数optionにはnameキーと値が必須です。' !== e.message) { throw new UnitTestError(`エラーメッセージは「HowToSupplyの引数optionにはnameキーと値が必須です。」であるべきです。: ${e.message}`); }
+        }
+    }
+    /*
+    testHowTo1OptionsSupplyTool() { // OKでプレビュー確認できたがオプション項目が表示されなかった。警告あり（任意項目12件未入力）
+        const jsonLd = SchemaOrg.HowTo('ラズパイの起動方法', 
+            ['ACアダプタをコンセントに挿す。', '電源スイッチを入れる。', 'ブート完了を待つ。'],
+            {
+                image: 'https://a.png',
+                totalTime: 'P2D3H4M5S',
+                estimatedCost: SchemaOrg.MonetaryAmount(123),
+                supply: HowToSupplies
+                tool: 
+            }
+        ).generate()
+        console.log(this.#makeTag(jsonLd))
+    }
+    testHowTo2Minimum() { // OKだが警告あり（任意項目29件未入力）
+        const jsonLd = SchemaOrg.HowTo('ラズパイの起動方法', ['ACアダプタをコンセントに挿す。']).generate()
+        console.log(this.#makeTag(jsonLd))
+    }
+    */
 }
 const test = new TestSchemaOrg() 
 test.testBreadcrumbList()
@@ -105,4 +146,6 @@ test.testSimpleQuizesWithComment()
 test.testHowTo1Minimum()
 test.testHowTo1MultiStep()
 test.testHowTo1Options()
+test.testHowToSupplyError()
+</script>
 </script>

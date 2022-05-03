@@ -248,10 +248,10 @@ class SchemaOrg { // Googleが対応しているものだけ
         }
         return result
     }
-    static HowToTool(option) { return this.HowToItem('HowToItem', options); }
+    static HowToTool(option) { return this.HowToItem('HowToItem', option); }
     static HowToTools(options) { return [...Array(options.length).keys()].map((o)=>{Google.SchemaOrg.HowToTool(o)}); }
     static HowToSupply(option) {
-        const result = this.HowToItem('HowToSupply', options);
+        const result = this.HowToItem('HowToSupply', option);
         for (const key of ['estimatedCost']) {
             if (option.hasOwnProperty(key)) { result[key] = option[key]; }
         }
@@ -812,6 +812,8 @@ class JsonLdGenerator { // <script type="application/ld+json">
     get Mime() { return 'application/ld+json'; }
     generate() { return JSON.stringify(this.Options); }
 }
+class SchemaOrgParameterError extends ExtensibleCustomError {}
+/*
 class SchemaOrgParameterError extends Error {
     constructor(message) {
         super(message);
@@ -822,3 +824,4 @@ class SchemaOrgParameterError extends Error {
         Object.setPrototypeOf(this, new.target.prototype);
     }
 }
+*/
