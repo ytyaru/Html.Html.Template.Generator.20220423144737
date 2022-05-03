@@ -109,6 +109,18 @@ class TestSchemaOrg { // Googleが対応しているものだけ
         ).generate()
         console.log(this.#makeTag(jsonLd))
     }
+    testMonetaryAmountMinimum() {
+        const money = SchemaOrg.MonetaryAmount(123)
+        console.assert(money['@type'] === 'MonetaryAmount')
+        console.assert(money.value === 123)
+        console.assert(money.currency === 'JPY')
+    }
+    testMonetaryAmountUSD() {
+        const money = SchemaOrg.MonetaryAmount(234.5, 'USD')
+        console.assert(money['@type'] === 'MonetaryAmount')
+        console.assert(money.value === 234.5)
+        console.assert(money.currency === 'USD')
+    }
     testHowToToolError() {
         try { SchemaOrg.HowToTool({}); }
         catch (e) {
@@ -153,6 +165,8 @@ test.testSimpleQuizesWithComment()
 test.testHowTo1Minimum()
 test.testHowTo1MultiStep()
 test.testHowTo1Options()
+test.testMonetaryAmountMinimum()
+test.testMonetaryAmountUSD()
 test.testHowToToolError()
 test.testHowToSupplyError()
 </script>
