@@ -249,7 +249,7 @@ class SchemaOrg { // Googleが対応しているものだけ
         return result
     }
     static HowToTool(option) { return this.HowToItem('HowToTool', option); }
-    static HowToTools(options) { return [...Array(options.length).keys()].map((o)=>{Google.SchemaOrg.HowToTool(o)}); }
+    static HowToTools(options) { return options.map((o)=>SchemaOrg.HowToTool(o)); }
     static HowToSupply(option) {
         const result = this.HowToItem('HowToSupply', option);
         for (const key of ['estimatedCost']) {
@@ -257,7 +257,7 @@ class SchemaOrg { // Googleが対応しているものだけ
         }
         return result
     }
-    static HowToSupplies(options) { return [...Array(options.length).keys()].map((o)=>{Google.SchemaOrg.HowToSupply(o)}); }
+    static HowToSupplies(options) { return options.map((o)=>SchemaOrg.HowToSupply(o)); }
     static HowToStepSection(name, steps) { return {
         '@type': 'HowToSection',
         name: name,

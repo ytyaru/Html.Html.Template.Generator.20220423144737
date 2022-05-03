@@ -148,16 +148,40 @@ class TestSchemaOrg { // Googleが対応しているものだけ
         console.assert(image === tool.image)
     }
     testHowToSupplyMinimum() {
-        const expected = 'ドライバー（＋）'
+        const expected = 'A4用紙'
         const supply = SchemaOrg.HowToSupply({name: expected});
         console.assert(expected === supply.name)
     }
     testHowToSupplyWithImage() {
-        const name = 'ドライバー（＋）'
+        const name = 'A4用紙'
         const image = 'https://a.png'
         const supply = SchemaOrg.HowToSupply({name: name, image: image});
         console.assert(name === supply.name)
         console.assert(image === supply.image)
+    }
+    testHowToTools() {
+        const tools = [{
+            name: 'ドライバー（＋）',
+        },{
+            name: 'トンカチ（かなづち、ハンマー）',
+            image: 'https://b.jpg'
+        }]
+        const actual = SchemaOrg.HowToTools(tools);
+        console.assert('ドライバー（＋）' === actual[0].name)
+        console.assert('トンカチ（かなづち、ハンマー）' === actual[1].name)
+        console.assert('https://b.jpg' === actual[1].image)
+    }
+    testHowToSupplies() {
+        const supplies = [{
+            name: 'A4用紙',
+        },{
+            name: '空き缶（350ml）',
+            image: 'https://c.gif'
+        }]
+        const actual = SchemaOrg.HowToTools(supplies);
+        console.assert('A4用紙' === actual[0].name)
+        console.assert('空き缶（350ml）' === actual[1].name)
+        console.assert('https://c.gif' === actual[1].image)
     }
     /*
     testHowTo1OptionsSupplyTool() { // OKでプレビュー確認できたがオプション項目が表示されなかった。警告あり（任意項目12件未入力）
@@ -197,5 +221,7 @@ test.testHowToToolMinimum()
 test.testHowToToolWithImage()
 test.testHowToSupplyMinimum()
 test.testHowToSupplyWithImage()
+test.testHowToTools()
+test.testHowToSupplies()
 </script>
 </script>
