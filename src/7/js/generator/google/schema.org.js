@@ -285,11 +285,12 @@ class SchemaOrg { // Googleが対応しているものだけ
         step.itemListElement = []
         if (Array.isArray(directions)) {
             for (const dir of directions) {
-                if (dir.toUpperCase().startsWith('TIP:')) { step.itemListElement.push(this.HowToTip(dir)); }
+                if (dir.toUpperCase().startsWith('TIP:')) { step.itemListElement.push(this.HowToTip(dir.slice('TIP:'.length))); }
                 else { step.itemListElement.push(this.HowToDirection(dir)); }
             }
         }
         else { throw new SchemaOrgParameterError(`HowToStepDirectionsの引数directionsは配列であるべきです。const ary = ['Direction1', 'TIP:ヒント'];`); }
+        return step
     }
     /*
     static HowToEnd(type, text) {

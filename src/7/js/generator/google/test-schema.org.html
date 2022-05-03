@@ -317,26 +317,48 @@ class TestSchemaOrg { // Googleが対応しているものだけ
             if (`HowToStepTextの引数dataにはtextが含まるようにセットしてください。dataはStringか配列かObject型であるべきです。data = '手順'; data = {text:'手順', url:'https://...', image:'https://...'}; data = ['手順','https://a.html', 'https://a.jpg']; とくに配列のときは文字列の先頭がhttp://やhttps://のとき、urlかimageとしてセットされ、textとしてセットされないので注意してください。` !== e.message) { throw new UnitTestError(`エラーメッセージが不正です。: ${e.message}`); }
         }
     }
-
-    /*
-    testHowTo1OptionsSupplyTool() { // OKでプレビュー確認できたがオプション項目が表示されなかった。警告あり（任意項目12件未入力）
-        const jsonLd = SchemaOrg.HowTo('ラズパイの起動方法', 
-            ['ACアダプタをコンセントに挿す。', '電源スイッチを入れる。', 'ブート完了を待つ。'],
-            {
-                image: 'https://a.png',
-                totalTime: 'P2D3H4M5S',
-                estimatedCost: SchemaOrg.MonetaryAmount(123),
-                supply: HowToSupplies
-                tool: 
-            }
-        ).generate()
-        console.log(this.#makeTag(jsonLd))
+    testHowToStepDirectionsMinimum() {
+        const actual = SchemaOrg.HowToStepDirections('ラズパイの起動方法', ['ACアダプタをコンセントに挿す'])
+        console.assert('HowToStep' === actual['@type'])
+        console.assert('ラズパイの起動方法' === actual.name)
+        console.assert(1 === actual.itemListElement.length)
+        console.assert('HowToDirection' === actual.itemListElement[0]['@type'])
+        console.assert('ACアダプタをコンセントに挿す' === actual.itemListElement[0].text)
     }
-    testHowTo2Minimum() { // OKだが警告あり（任意項目29件未入力）
-        const jsonLd = SchemaOrg.HowTo('ラズパイの起動方法', ['ACアダプタをコンセントに挿す。']).generate()
-        console.log(this.#makeTag(jsonLd))
+    testHowToStepDirectionsMinimumTip() {
+        const actual = SchemaOrg.HowToStepDirections('ラズパイの起動方法', ['TIP:ラズパイといっても食べられないよ！'])
+        console.assert('HowToStep' === actual['@type'])
+        console.assert('ラズパイの起動方法' === actual.name)
+        console.assert(1 === actual.itemListElement.length)
+        console.assert('HowToTip' === actual.itemListElement[0]['@type'])
+        console.assert('ラズパイといっても食べられないよ！' === actual.itemListElement[0].text)
     }
-    */
+    testHowToStepDirectionsMulti() {
+        const actual = SchemaOrg.HowToStepDirections('ラズパイの起動方法', [
+            'ACアダプタをコンセントに挿す', 
+            'ブートが完了するのを待つ', 
+            'TIP:待機時間はHDDなら60秒、SSDなら30秒くらいだよ'])
+        console.log(actual)
+        console.assert('HowToStep' === actual['@type'])
+        console.assert('ラズパイの起動方法' === actual.name)
+        console.assert(3 === actual.itemListElement.length)
+        console.assert('HowToDirection' === actual.itemListElement[0]['@type'])
+        console.assert('ACアダプタをコンセントに挿す' === actual.itemListElement[0].text)
+        console.assert('HowToDirection' === actual.itemListElement[1]['@type'])
+        console.assert('ブートが完了するのを待つ' === actual.itemListElement[1].text)
+        console.assert('HowToTip' === actual.itemListElement[2]['@type'])
+        console.assert('待機時間はHDDなら60秒、SSDなら30秒くらいだよ' === actual.itemListElement[2].text)
+    }
+    testHowToStepDirectionsError() {
+        try {
+            SchemaOrg.HowToStepDirections('ラズパイの起動方法', {})
+            throw new UnitTestError(`例外が発生すべきなのに発生していません。引数が不正値です。引数は配列であるべきです。`)
+        }
+        catch (e) {
+            if (!(e instanceof SchemaOrgParameterError)) { throw new UnitTestError(`エラーの型はSchemaOrgParameterErrorであるべきです。: ${e.constructor.name}`); }
+            if (`HowToStepDirectionsの引数directionsは配列であるべきです。const ary = ['Direction1', 'TIP:ヒント'];` !== e.message) { throw new UnitTestError(`エラーメッセージが不正です。: ${e.message}`); }
+        }
+    }
 }
 const test = new TestSchemaOrg() 
 test.testBreadcrumbList()
@@ -374,5 +396,9 @@ test.testHowToStepTextArray3ImageTextUrl()
 test.testHowToStepTextArray3UrlUrlImageError()
 test.testHowToStepTextObject()
 test.testHowToStepTextObjectError()
+test.testHowToStepDirectionsMinimum()
+test.testHowToStepDirectionsMinimumTip()
+test.testHowToStepDirectionsMulti()
+test.testHowToStepDirectionsError()
 </script>
 </script>
