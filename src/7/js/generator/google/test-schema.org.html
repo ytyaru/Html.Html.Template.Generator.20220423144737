@@ -135,6 +135,30 @@ class TestSchemaOrg { // Googleが対応しているものだけ
             if ('HowToSupplyの引数optionにはnameキーと値が必須です。' !== e.message) { throw new UnitTestError(`エラーメッセージは「HowToSupplyの引数optionにはnameキーと値が必須です。」であるべきです。: ${e.message}`); }
         }
     }
+    testHowToToolMinimum() {
+        const expected = 'ドライバー（＋）'
+        const tool = SchemaOrg.HowToTool({name: expected});
+        console.assert(expected === tool.name)
+    }
+    testHowToToolWithImage() {
+        const name = 'ドライバー（＋）'
+        const image = 'https://a.png'
+        const tool = SchemaOrg.HowToTool({name: name, image: image});
+        console.assert(name === tool.name)
+        console.assert(image === tool.image)
+    }
+    testHowToSupplyMinimum() {
+        const expected = 'ドライバー（＋）'
+        const supply = SchemaOrg.HowToSupply({name: expected});
+        console.assert(expected === supply.name)
+    }
+    testHowToSupplyWithImage() {
+        const name = 'ドライバー（＋）'
+        const image = 'https://a.png'
+        const supply = SchemaOrg.HowToSupply({name: name, image: image});
+        console.assert(name === supply.name)
+        console.assert(image === supply.image)
+    }
     /*
     testHowTo1OptionsSupplyTool() { // OKでプレビュー確認できたがオプション項目が表示されなかった。警告あり（任意項目12件未入力）
         const jsonLd = SchemaOrg.HowTo('ラズパイの起動方法', 
@@ -169,5 +193,9 @@ test.testMonetaryAmountMinimum()
 test.testMonetaryAmountUSD()
 test.testHowToToolError()
 test.testHowToSupplyError()
+test.testHowToToolMinimum()
+test.testHowToToolWithImage()
+test.testHowToSupplyMinimum()
+test.testHowToSupplyWithImage()
 </script>
 </script>
