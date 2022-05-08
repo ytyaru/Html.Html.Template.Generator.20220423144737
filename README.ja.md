@@ -4,9 +4,15 @@
 
 　HTMLのテンプレートを生成する。
 
+* [TextToObjectToSchemaOrg][]
+* [TextToObject][]
+
+[TextToObjectToSchemaOrg]:https://ytyaru.github.io/JS.TextToObjectToSchemaOrg.20220508132053
+[TextToObject]:https://ytyaru.github.io/JS.TextToObject.20220505113141
+
 # デモ
 
-* [デモ](https://ytyaru.github.io/Html.Html.Template.Generator.20220423144737/)
+* [デモ](https://ytyaru.github.io/Html.Template.Generator.20220423144737/)
 
 # 特徴
 
@@ -27,13 +33,13 @@ Linux raspberrypi 5.10.63-v7l+ #1496 SMP Wed Dec 1 15:58:56 GMT 2021 armv7l GNU/
 # インストール
 
 ```sh
-git clone https://github.com/ytyaru/Html.Html.Template.Generator.20220423144737
+git clone https://github.com/ytyaru/Html.Template.Generator.20220423144737
 ```
 
 # 使い方
 
 ```sh
-cd Html.Html.Template.Generator.20220423144737/src
+cd Html.Template.Generator.20220423144737/src
 ./run.sh
 ```
 
